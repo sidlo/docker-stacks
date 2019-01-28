@@ -29,6 +29,7 @@ RUN jupyter labextension install @jupyterlab/git && \
 
 # other JupyterLab extensions: 
 RUN pip install ipywidgets && \
+    pip install psycopg2-binary && \
     $CONDA_DIR/bin/conda install --quiet --yes -c conda-forge ipywidgets && \
     jupyter labextension install @jupyterlab/fasta-extension && \
     jupyter labextension install @jupyterlab/geojson-extension && \
