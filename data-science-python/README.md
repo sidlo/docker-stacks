@@ -16,8 +16,8 @@ We assume a Docker service running and Docker commands available. We map the use
     --memory="8000m"  --memory-swap="8000m" --cpus="4" sidlo/data-science-python
 
 - `NB_UID` is the UID of the host OS which is used by Docker - the user should be able to read and write the mounted home directory,
-- `NB_USER` is the user name of the container - notebooks then assume `/home/NB_USER` as the home directory
-- this home directory is mapped to the host source directory of `--mount`
+- `NB_USER` is the user name inside the container - notebook service uses `/home/NB_USER` as home directory,
+   - this home directory is mapped to the host source directory of `--mount`
    - `- e CHOWN_HOME=yes` might be required when users differ
 - it is useful to set CPU and memory limits
 - on Windows host, using [Docker Toolbox](https://docs.docker.com/toolbox/overview/): 
