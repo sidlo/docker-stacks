@@ -8,6 +8,8 @@ Personalized docker image for Python-based data science, extending [Jupyter Dock
 * psycog2 PostgreSQl python lib,
 * Turi Create
 
+Examples are available in the [GitHub repo](https://github.com/sidlo/docker-stacks), compiled image from the [Docker Hub repo](https://hub.docker.com/r/sidlo/data-science-python).
+
 ## running the image
 We assume a Docker service running and Docker commands available. We map the user of the host OS to the user in the container, and a host OS folder as the home folder. This way we can work with our notebooks in a persistent home folder, with the user of our host OS. On Linux, run: 
 
