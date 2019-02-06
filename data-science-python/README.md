@@ -8,6 +8,9 @@ Personalized docker image for Python-based data science, extending [Jupyter Dock
 * psycog2 PostgreSQl python lib,
 * Turi Create
 
+The goal is to enable and testing and developing various alternative data processing pipelines on a single server or on a laptop, in a uniform Docker-based environment, before using the same or very 
+similar notebooks in a production (possibly distributed) environment. 
+
 Examples are available in the [GitHub repo](https://github.com/sidlo/docker-stacks), compiled image from the [Docker Hub repo](https://hub.docker.com/r/sidlo/data-science-python).
 
 ## running the image
