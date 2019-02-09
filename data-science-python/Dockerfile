@@ -50,6 +50,14 @@ RUN pip install ipywidgets && \
 
 #    jupyter labextension install jupyterlab_voyager && \
 
+# various further data science libraries
+RUN pip install twython && \
+    pip install pymongo && \
+    pip install scrapy && \
+    pip install elasticsearch && \
+    pip install nltk && \
+    conda install -c conda-forge alpenglow
+
 # cleanup: 
 RUN npm cache clean --force && \
     rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
