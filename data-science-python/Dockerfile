@@ -56,17 +56,9 @@ RUN pip install twython && \
     pip install scrapy && \
     pip install elasticsearch && \
     pip install nltk && \
-    conda install -c conda-forge alpenglow
-    
-# Special Python data science packages
-RUN pip install twython && \
-    pip install pymongo && \
-    pip install scrapy && \
-    pip install elasticsearch && \
     pip install trec_eval && \
     pip install trectools && \
-    pip install alpenglow && \
-    pip install nltk 
+    conda install -c conda-forge alpenglow
 
 # cleanup: 
 RUN npm cache clean --force && \
