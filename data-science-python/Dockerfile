@@ -56,9 +56,9 @@ RUN pip install twython && \
     pip install scrapy && \
     pip install elasticsearch && \
     pip install nltk && \
-    pip install trec_eval && \
     pip install trectools && \
     conda install -c conda-forge alpenglow
+    #pip install trec_eval && \
 
 # cleanup: 
 RUN npm cache clean --force && \
