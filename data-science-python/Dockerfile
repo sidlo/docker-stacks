@@ -21,7 +21,7 @@ RUN pip install sparkmonitor  && \
     jupyter nbextension enable sparkmonitor --py --user  && \
     jupyter serverextension enable --py --user sparkmonitor && \
     ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmonitor.kernelextension')" >>  $(ipython profile locate default)/ipython_kernel_config.py
- 
+
 # JupyterLab GIT extension: 
 RUN jupyter labextension install @jupyterlab/git && \
     pip install jupyterlab-git && \
@@ -68,5 +68,3 @@ RUN npm cache clean --force && \
     fix-permissions /home/$NB_USER
 
 #   jupyter notebook --generate-config && \
-
-    
