@@ -7,6 +7,9 @@ Personalized docker image for Python-based data science, extending [Jupyter Dock
 * BigQuery python client,
 * psycog2 PostgreSQl python lib,
 * Turi Create
+* elasticsearch
+* alpenglow
+* various other libraries, eg. twython, pymongo, scrapy, nltk, trectools
 
 The goal is to enable testing and developing various alternative data processing pipelines on a single server or on a laptop, in a uniform Docker-based environment, before using the same or very 
 similar notebooks in a production (possibly distributed) environment. 
@@ -18,13 +21,17 @@ We assume a Docker service running and Docker commands available. We map the use
 
     docker run --name data-science-python -d --user root -e "NB_USER=johndoe" -e "NB_UID=1000" -p 8888:8888 \
     --mount type=bind,source=/home/johndoe/jupyter-home,target=/home/johndoe \
-    --memory="8000m"  --memory-swap="8000m" --cpus="4" sidlo/data-science-python
+    --memory="8000m" --memory-swap="8000m" --cpus="4" \
+    -e "SPARK_OPTS=--driver-java-options=-Xmx8000M -XX:-UseGCOverheadLimit --driver-java-options=-Dlog4j.logLevel=info"
+    sidlo/data-science-python
 
 - `NB_UID` is the UID of the host OS which is used by Docker - the user should be able to read and write the mounted home directory,
 - `NB_USER` is the user name inside the container - notebook service uses `/home/NB_USER` as home directory,
    - this home directory is mapped to the host source directory of `--mount`
    - `- e CHOWN_HOME=yes` might be required when users differ
 - it is useful to set CPU and memory limits
+   - we also have to set JVM paramters in `SPARK_OPTS` for Spark local to use the available container memory
+   - also check if SparkSession options are set `spark.executor.memory` and `spark.driver.memory` (see the related example in [examples](https://github.com/sidlo/docker-stacks/examples))
 - on Windows host, using [Docker Toolbox](https://docs.docker.com/toolbox/overview/): 
   - memory and CPU limits should be set in VirtualBox (Docker Toolbox is based on VirtualBox) - default is 1 CPU (use the VirtualBox GUI)
 
@@ -41,7 +48,7 @@ We assume a Docker service running and Docker commands available. We map the use
   - Jupyter access token for authentication is written in the logs, to check run: 
   
     `docker logs --tail 3 data-science-python`
-- the [examples](../examples) folder contains simple notebook examples to get started: 
+- the [examples](https://github.com/sidlo/docker-stacks/examples) folder contains simple notebook examples to get started: 
   - `*-f1.ipynb` notebook use a public formula-1 results dataset to demonstrate CSV input, aggragation and joins.
   - `turi*`, `spark*` and `pandas*` notebooks solve the same tasks using Turi Create SFrame, PySpark SQL and Pandas DataFrame.
 
