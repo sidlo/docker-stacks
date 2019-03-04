@@ -38,7 +38,6 @@ RUN pip install ipywidgets && \
     jupyter labextension install @jupyterlab/github && \
     jupyter labextension install @jupyterlab/plotly-extension && \
     jupyter labextension install @jupyterlab/vega2-extension && \
-    jupyter labextension install @jpmorganchase/perspective-jupyterlab && \
     jupyter labextension install @jupyterlab/latex && \
     jupyter labextension install beakerx-jupyterlab && \
     jupyter labextension install @jupyterlab/toc && \
@@ -48,7 +47,8 @@ RUN pip install ipywidgets && \
     jupyter labextension install qgrid && \
     jupyter labextension install knowledgelab
 
-#    jupyter labextension install jupyterlab_voyager && \
+#   jupyter labextension install jupyterlab_voyager && \
+#   jupyter labextension install @jpmorganchase/perspective-jupyterlab && \
 
 # various further data science libraries
 RUN pip install twython && \
