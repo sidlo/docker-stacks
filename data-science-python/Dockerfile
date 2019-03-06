@@ -57,6 +57,7 @@ RUN pip install twython && \
     pip install elasticsearch && \
     pip install nltk && \
     pip install trectools && \
+    pip install xmltodict && \
     conda install -c conda-forge alpenglow
     #pip install trec_eval && \
 
