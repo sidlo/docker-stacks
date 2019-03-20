@@ -3,8 +3,8 @@ FROM jupyter/pyspark-notebook:latest
 
 # additinal ubuntu packages:
 USER root
-RUN sudo apt-get update && apt-get install -y telnet iputils-ping
-RUN sudo apt-get install -y libblas3 liblapack3 libstdc++6 python-setuptools 
+RUN sudo apt-get update && apt-get install -y telnet iputils-ping 
+RUN sudo apt-get install -y libblas3 liblapack3 libstdc++6 python-setuptools graphviz
 
 # additional python packages (with the default user of pyspark-notebook):
 USER $NB_UID 
