@@ -9,7 +9,7 @@ Personalized docker image for Python-based data science, extending [Jupyter Dock
 * Turi Create
 * elasticsearch
 * alpenglow
-* various other libraries, eg. twython, pymongo, scrapy, nltk, trectools, xmltodict
+* various other libraries, eg. twython, pymongo, scrapy, nltk, trectools, xmltodict, xgboost
 
 The goal is to enable testing and developing various alternative data processing pipelines on a single server or on a laptop, in a uniform Docker-based environment, before using the same or very 
 similar notebooks in a production (possibly distributed) environment. 

@@ -28,7 +28,8 @@ RUN jupyter labextension install @jupyterlab/git && \
     jupyter serverextension enable --py --sys-prefix jupyterlab_git
 
 # other python libraries and JupyterLab extensions: 
-RUN pip install ipywidgets && \
+RUN pip install xgboost && \
+    pip install ipywidgets && \
     pip install psycopg2-binary && \
     pip install --upgrade google-cloud-bigquery && \
     pip install -e git+https://github.com/SohierDane/BigQuery_Helper#egg=bq_helper && \
