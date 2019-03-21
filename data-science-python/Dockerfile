@@ -8,6 +8,10 @@ RUN sudo apt-get install -y libblas3 liblapack3 libstdc++6 python-setuptools gra
 
 # additional python packages (with the default user of pyspark-notebook):
 USER $NB_UID 
+# update pip (required for eg. turicreate)
+RUN pip install -U pip
+
+# pypi packages:  
 RUN pip install findspark
 #RUN pip install 'ggplot==0.6.8'
 RUN pip install turicreate
