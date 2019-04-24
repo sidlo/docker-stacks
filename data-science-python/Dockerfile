@@ -61,13 +61,13 @@ RUN pip install twython && \
     pip install scrapy && \
     pip install elasticsearch && \
     pip install nltk && \
-    pip install trectools && \
     pip install xmltodict && \
     pip install xgboost && \
     pip install folium && \
     pip install geopandas && \
     conda install -c conda-forge alpenglow
     #pip install trec_eval && \
+    #pip install trectools && \
 
 # cleanup: 
 RUN npm cache clean --force && \
