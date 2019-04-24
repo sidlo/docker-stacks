@@ -14,7 +14,7 @@ RUN pip install -U pip
 # pypi packages:  
 RUN pip install findspark
 #RUN pip install 'ggplot==0.6.8'
-RUN pip install turicreate
+#RUN pip install turicreate
 
 # uninstall packages to get the newest ones: 
 # RUN jupyter labextension uninstall @jupyterlab/hub-extension
@@ -63,6 +63,9 @@ RUN pip install twython && \
     pip install nltk && \
     pip install trectools && \
     pip install xmltodict && \
+    pip install xgboost && \
+    pip install folium && \
+    pip install geopandas && \
     conda install -c conda-forge alpenglow
     #pip install trec_eval && \
 
