@@ -65,12 +65,13 @@ RUN pip install twython && \
     pip install xgboost && \
     pip install folium && \
     pip install geopandas && \
-    pip install graphviz && \
-    conda install -c conda-forge alpenglow
+    pip install graphviz
+
+RUN $CONDA_DIR/bin/conda install --yes --quiet -c conda-forge alpenglow
     #pip install trec_eval && \
     #pip install trectools && \
 
-RUN conda install -c tensorflow=1.13* keras=2.2*
+RUN $CONDA_DIR/bin/conda install --yes --quiet 'tensorflow=1.13*' 'keras=2.2*'
 
 # cleanup: 
 RUN npm cache clean --force && \
