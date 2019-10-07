@@ -3,19 +3,19 @@ FROM jupyter/pyspark-notebook:latest
 
 # additinal ubuntu packages:
 USER root
-RUN sudo apt-get update && apt-get install -y telnet iputils-ping 
+RUN sudo apt-get update && apt-get install -y telnet iputils-ping
 RUN sudo apt-get install -y libblas3 liblapack3 libstdc++6 python-setuptools graphviz
 
 # additional python packages (with the default user of pyspark-notebook):
-USER $NB_UID 
+USER $NB_UID
 
 # update pip (required for eg. turicreate)
 RUN pip install -U pip
 
-# uninstall packages to get the newest ones: 
+# uninstall packages to get the newest ones:
 # RUN jupyter labextension uninstall @jupyterlab/hub-extension
 
-# JupyterLab extensions: 
+# JupyterLab extensions:
 RUN pip install sparkmonitor  && \
     jupyter nbextension install sparkmonitor --py --user --symlink  && \
     jupyter nbextension enable sparkmonitor --py --user  && \
@@ -52,7 +52,7 @@ RUN pip install psycopg2-binary && \
     pip install -e git+https://github.com/SohierDane/BigQuery_Helper#egg=bq_helper
 
 RUN pip install findspark
-# have to wait for turicreate python 3.7 support: 
+# have to wait for turicreate python 3.7 support:
 #RUN pip install turicreate
 
 #RUN pip install 'ggplot==0.6.8'
@@ -68,12 +68,13 @@ RUN pip install twython && \
     pip install geopy && \
     pip install graphviz
 
-# further ML and deep learning packages: 
+# further ML and deep learning packages:
 RUN pip install xgboost
 RUN $CONDA_DIR/bin/conda install --yes --quiet -c conda-forge alpenglow
 RUN $CONDA_DIR/bin/conda install --yes --quiet tensorflow keras
+RUN $CONDA_DIR/bin/conda install --yes --quiet -c conda-forge hdbscan
 
-# cleanup: 
+# cleanup:
 RUN npm cache clean --force && \
     rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
     rm -rf /home/$NB_USER/.cache/yarn && \
