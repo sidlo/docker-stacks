@@ -15,6 +15,9 @@ RUN pip install -U pip
 # uninstall packages to get the newest ones:
 # RUN jupyter labextension uninstall @jupyterlab/hub-extension
 
+# avoid mkl to reduce image size
+RUN conda install --yes nomkl && conda clean -afy
+
 # JupyterLab extensions:
 RUN pip install sparkmonitor  && \
     jupyter nbextension install sparkmonitor --py --user --symlink  && \
@@ -22,7 +25,7 @@ RUN pip install sparkmonitor  && \
     jupyter serverextension enable --py --user sparkmonitor && \
     ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmonitor.kernelextension')" >>  $(ipython profile locate default)/ipython_kernel_config.py
 
-RUN $CONDA_DIR/bin/conda install --quiet --yes -c conda-forge ipywidgets && \
+RUN $CONDA_DIR/bin/conda install --quiet --yes --freeze-installed -c conda-forge ipywidgets && \
     jupyter labextension install @jupyterlab/git && \
     pip install jupyterlab-git && \
     jupyter serverextension enable --py --sys-prefix jupyterlab_git && \
@@ -44,7 +47,8 @@ RUN $CONDA_DIR/bin/conda install --quiet --yes -c conda-forge ipywidgets && \
     jupyter labextension install @krassowski/jupyterlab_go_to_definition && \
     jupyter labextension install @mflevine/jupyterlab_html && \
     jupyter labextension install jupyterlab_bokeh && \
-    jupyter labextension install bqplot
+    jupyter labextension install bqplot && \
+    conda clean -afy
 
 # other python libraries
 RUN pip install psycopg2-binary && \
@@ -70,9 +74,12 @@ RUN pip install twython && \
 
 # further ML and deep learning packages:
 RUN pip install xgboost
-RUN $CONDA_DIR/bin/conda install --yes --quiet -c conda-forge alpenglow
-RUN $CONDA_DIR/bin/conda install --yes --quiet tensorflow keras
-RUN $CONDA_DIR/bin/conda install --yes --quiet -c conda-forge hdbscan
+RUN $CONDA_DIR/bin/conda install --yes --quiet --freeze-installed -c conda-forge \
+    hdbscan \
+    alpenglow \
+    && conda clean -afy
+RUN $CONDA_DIR/bin/conda install --yes --quiet --freeze-installed tensorflow keras \
+    && conda clean -afy
 
 # cleanup:
 RUN npm cache clean --force && \
