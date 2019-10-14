@@ -74,9 +74,12 @@ RUN pip install twython && \
 
 # further ML and deep learning packages:
 RUN pip install xgboost
+RUN $CONDA_DIR/bin/conda install --yes --quiet --freeze-installed -c plotly plotly \
+    && conda clean -afy
 RUN $CONDA_DIR/bin/conda install --yes --quiet --freeze-installed -c conda-forge \
     hdbscan \
     alpenglow \
+    cufflinks-py \
     && conda clean -afy
 RUN $CONDA_DIR/bin/conda install --yes --quiet --freeze-installed tensorflow keras \
     && conda clean -afy
