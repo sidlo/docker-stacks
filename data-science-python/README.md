@@ -53,3 +53,8 @@ We assume a Docker service running and Docker commands available. We map the use
   - `turi*`, `spark*` and `pandas*` notebooks solve the same tasks using Turi Create SFrame, PySpark SQL and Pandas DataFrame.
 
 ## links
+- the base image used is the [Docker Stacks pyspark-notebook](https://github.com/jupyter/docker-stacks/tree/master/pyspark-notebook)
+
+## notes 
+- sparkmonitor notebook extension is currently installed, but buggy in the given jupyter environment - still to be fixed 
+
