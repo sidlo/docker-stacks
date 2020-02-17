@@ -22,6 +22,8 @@ RUN pip install --upgrade setuptools pip wheel \
     # pyarrow with spark currently only works with pip install, not the conda version, and only below v0.15
     pyarrow==0.14.1 \
     xgboost && \
+    # for a geopandas bug: 
+    pyproj==2.3.1 && \
     # pip install jupyterlab_latex && \
     pip install -e git+https://github.com/SohierDane/BigQuery_Helper#egg=bq_helper
 
@@ -52,6 +54,9 @@ RUN conda install --yes --quiet \
     conda clean -afy && \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
+
+# bugfix: 
+RUN pip install 
 
 # install and enable Jupyter / JupyterLab extensions:
 # TODO: check if --dev-build=False is default
@@ -93,3 +98,4 @@ RUN jupyter contrib nbextension install --sys-prefix && \
 #    fix-permissions /home/$NB_USER
 
 USER $NB_USER
+RUN fix-permissions /home/$NB_USER
