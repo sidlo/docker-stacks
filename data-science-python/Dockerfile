@@ -72,9 +72,9 @@ RUN jupyter contrib nbextension install --sys-prefix && \
     jupyter labextension install beakerx-jupyterlab && \
     jupyter labextension install qgrid && \
     jupyter labextension install @krassowski/jupyterlab_go_to_definition && \
-    jupyter labextension install @mflevine/jupyterlab_html && \
     jupyter labextension install jupyterlab_bokeh && \
     jupyter labextension install bqplot  && \
+    #jupyter labextension install @mflevine/jupyterlab_html && \
     #jupyter labextension install @jupyterlab/fasta-extension && \
     #jupyter labextension install @jupyterlab/latex && \
     #jupyter serverextension enable --sys-prefix jupyterlab_latex && \
