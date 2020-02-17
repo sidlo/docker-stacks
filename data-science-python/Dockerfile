@@ -55,9 +55,6 @@ RUN conda install --yes --quiet \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 
-# bugfix: 
-RUN pip install 
-
 # install and enable Jupyter / JupyterLab extensions:
 # TODO: check if --dev-build=False is default
 RUN jupyter contrib nbextension install --sys-prefix && \
