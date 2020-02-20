@@ -22,19 +22,21 @@ RUN pip install --upgrade setuptools pip wheel \
     # pyarrow with spark currently only works with pip install, not the conda version, and only below v0.15
     pyarrow==0.14.1 \
     xgboost && \
-    # for a geopandas bug: 
-    pyproj==2.3.1 && \
+    # geopandas bug - see https://github.com/geopandas/geopandas/issues/1113
+    # pyproj==2.3.1 && \
     # pip install jupyterlab_latex && \
     pip install -e git+https://github.com/SohierDane/BigQuery_Helper#egg=bq_helper
 
 # update conda, then install all packages in one round:
 # conda update -n base conda # updating conda doesn't seems to be unnecessary
 # TODO: consider using nomkl to reduce image size again
+# TODO: conda config --set channel_priority strict might be required
 RUN conda install --yes --quiet \
     tensorflow keras \
-    pymongo && \
+    pymongo \
+    geopandas && \
     # conda-forge: 
-    conda install --yes --quiet -c conda-forge \
+    conda install --yes --quiet --channel conda-forge \
     hdbscan \
     alpenglow \
     cufflinks-py \
@@ -49,7 +51,7 @@ RUN conda install --yes --quiet \
     jupyterlab-git \
     findspark && \
     # other: 
-    conda install --yes --quiet -c plotly plotly && \
+    conda install --yes --quiet --channel plotly plotly && \
     # cleanup: 
     conda clean -afy && \
     fix-permissions $CONDA_DIR && \
