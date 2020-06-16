@@ -21,7 +21,8 @@ RUN pip install --upgrade setuptools pip wheel \
     twython scrapy nltk xmltodict graphviz pydotplus psycopg2-binary google-cloud-bigquery \
     # pyarrow with spark currently only works with pip install, not the conda version, and only below v0.15
     pyarrow==0.14.1 \
-    xgboost && \
+    xgboost \
+    keras pymongo geopandas && \
     # geopandas bug - see https://github.com/geopandas/geopandas/issues/1113
     # pyproj==2.3.1 && \
     # pip install jupyterlab_latex && \
@@ -31,12 +32,13 @@ RUN pip install --upgrade setuptools pip wheel \
 # conda update -n base conda # updating conda doesn't seems to be unnecessary
 # TODO: consider using nomkl to reduce image size again
 # TODO: conda config --set channel_priority strict might be required
-RUN conda install --yes --quiet \
-    tensorflow keras \
-    pymongo \
-    geopandas && \
-    # conda-forge: 
-    conda install --yes --quiet --channel conda-forge \
+
+# install with pip instead of conda: (tensorflow does not work if we try to install with conda)
+#RUN conda install --yes --quiet \
+#    tensorflow keras \
+#    pymongo \
+#    geopandas && \
+RUN conda install --yes --quiet --channel conda-forge \
     hdbscan \
     alpenglow \
     cufflinks-py \
@@ -49,6 +51,7 @@ RUN conda install --yes --quiet \
     jupyter_nbextensions_configurator \
     # ipywidgets \  # installed in scipy-notebook
     jupyterlab-git \
+    qgrid \
     findspark && \
     # other: 
     conda install --yes --quiet --channel plotly plotly && \
@@ -62,6 +65,7 @@ RUN conda install --yes --quiet \
 RUN jupyter contrib nbextension install --sys-prefix && \
     jupyter nbextension enable collapsible_headings/main --sys-prefix && \
     jupyter nbextension enable toc2/main --sys-prefix && \
+    jupyter nbextension enable --py --sys-prefix qgrid && \
     jupyter serverextension enable --py --sys-prefix jupyterlab_git && \
     jupyter nbextension install sparkmonitor --py --sys-prefix --symlink  && \
     jupyter nbextension enable sparkmonitor --py --sys-prefix && \
@@ -69,12 +73,14 @@ RUN jupyter contrib nbextension install --sys-prefix && \
     ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmonitor.kernelextension')" >>  $(ipython profile locate default)/ipython_kernel_config.py && \
     jupyter labextension install @jupyterlab/git && \
     jupyter labextension install @jupyterlab/geojson-extension && \
-    jupyter labextension install @jupyterlab/plotly-extension && \
+#deprecated:    jupyter labextension install @jupyterlab/plotly-extension && \
+    jupyter labextension install jupyterlab-plotly@4.8.1 && \
     jupyter labextension install @jupyterlab/vega2-extension && \
-    jupyter labextension install beakerx-jupyterlab && \
+#does not work with Jupyterlab 2:    jupyter labextension install beakerx-jupyterlab && \
     jupyter labextension install qgrid && \
     jupyter labextension install @krassowski/jupyterlab_go_to_definition && \
-    jupyter labextension install jupyterlab_bokeh && \
+#deprecated:   jupyter labextension install jupyterlab_bokeh && \
+    jupyter labextension install @bokeh/jupyter_bokeh && \
     jupyter labextension install bqplot  && \
     #jupyter labextension install @mflevine/jupyterlab_html && \
     #jupyter labextension install @jupyterlab/fasta-extension && \
@@ -85,14 +91,15 @@ RUN jupyter contrib nbextension install --sys-prefix && \
     #jupyter labextension install jupyterlab-kernelspy && \
     #jupyter labextension install knowledgelab && \
     #jupyter labextension install jupyterlab-drawio && \
+    # cleanup:
     rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
     npm cache clean --force && \
     fix-permissions /home/$NB_USER
 
 # cleanup:
-#RUN npm cache clean --force && \
-#    rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
-#    rm -rf /home/$NB_USER/.cache/yarn && \
+#RUN rm -rf /home/$NB_USER/.cache/yarn && \
+
+#TODO: delete
 #RUN fix-permissions $CONDA_DIR && \
 #    fix-permissions /home/$NB_USER
 
