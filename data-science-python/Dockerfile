@@ -76,7 +76,7 @@ RUN jupyter contrib nbextension install --sys-prefix && \
 #depricated:    jupyter labextension install @jupyterlab/plotly-extension && \
     jupyter labextension install jupyterlab-plotly@4.8.1 && \
     jupyter labextension install @jupyterlab/vega2-extension && \
-    jupyter labextension install beakerx-jupyterlab && \
+#    jupyter labextension install beakerx-jupyterlab && \
     jupyter labextension install qgrid && \
     jupyter labextension install @krassowski/jupyterlab_go_to_definition && \
 #depricated:   jupyter labextension install jupyterlab_bokeh && \
