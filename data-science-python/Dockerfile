@@ -21,6 +21,8 @@ RUN pip install --upgrade setuptools pip wheel \
     twython scrapy nltk xmltodict graphviz pydotplus psycopg2-binary google-cloud-bigquery \
     # pyarrow with spark currently only works with pip install, not the conda version, and only below v0.15
     pyarrow==0.14.1 \
+    # compress_pickle only works with pip, not conda
+    compress_pickle \
     xgboost \
     keras pymongo geopandas && \
     # geopandas bug - see https://github.com/geopandas/geopandas/issues/1113
@@ -46,6 +48,7 @@ RUN conda install --yes --quiet --channel conda-forge \
     geopandas \
     geopy \
     wfdb \
+    clickhouse-driver \
     folium \
     jupyter_contrib_nbextensions \
     jupyter_nbextensions_configurator \
