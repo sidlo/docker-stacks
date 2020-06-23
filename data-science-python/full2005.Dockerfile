@@ -4,7 +4,7 @@
 # Ubuntu 18.04 (bionic)
 # https://hub.docker.com/_/ubuntu/?tab=tags&name=bionic
 # OS/ARCH: linux/amd64
-ARG ROOT_CONTAINER=ubuntu:bionic-20200403@sha256:b58746c8a89938b8c9f5b77de3b8cf1fe78210c696ab03a1442e235eea65d84f
+ARG ROOT_CONTAINER=ubuntu:focal-20200606@sha256:93fd0705706e5bdda6cc450b384d8d5afb18fecc19e054fe3d7a2c8c2aeb2c83
 ARG BASE_CONTAINER=$ROOT_CONTAINER
 FROM $BASE_CONTAINER
 
@@ -43,7 +43,8 @@ RUN apt-get -y update \
     # ---- nbconvert dependencies ----
     texlive-xetex \
     texlive-fonts-recommended \
-    texlive-generic-recommended \
+    # not in 20.04: texlive-generic-recommended \
+    texlive-plain-generic \
     # Optional dependency
     texlive-fonts-extra \
     # ----
@@ -65,8 +66,10 @@ RUN apt-get -y update \
     libstdc++6 \
     python-setuptools \
     graphviz \
-    python-pydot \
-    python-pydot-ng \
+    # not in 20.04: python-pydot \
+    # not in 20.04: python-pydot-ng \
+    python3-pydot \
+    python3-pydot-ng \
     openssh-server \
     telnet \
     iputils-ping \
@@ -107,18 +110,24 @@ RUN cd /usr/local && ln -s spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERS
 # <== pyspark-notebook (https://hub.docker.com/r/jupyter/pyspark-notebook/dockerfile)
 
 # ==> pyspark-notebook (https://hub.docker.com/r/jupyter/pyspark-notebook/dockerfile)
-# Mesos dependencies
-# Install from the Xenial Mesosphere repository since there does not (yet)
-# exist a Bionic repository and the dependencies seem to be compatible for now.
-COPY build-files/mesos.key /tmp/
-RUN apt-get -y update && \
-    apt-get install --no-install-recommends -y gnupg && \
-    apt-key add /tmp/mesos.key && \
-    echo "deb http://repos.mesosphere.io/ubuntu xenial main" > /etc/apt/sources.list.d/mesosphere.list && \
-    apt-get -y update && \
-    apt-get --no-install-recommends -y install mesos=1.2\* && \
-    apt-get purge --auto-remove -y gnupg && \
-    rm -rf /var/lib/apt/lists/*
+# Configure Spark
+ENV SPARK_HOME=/usr/local/spark
+ENV PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip \
+    SPARK_OPTS="--driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info" \
+    PATH=$PATH:$SPARK_HOME/bin
+# Mesos does not work in 20.04, it was also removed in pyspark-notebook Dockerfile using 18.04
+## Mesos dependencies
+## Install from the Xenial Mesosphere repository since there does not (yet)
+## exist a Bionic repository and the dependencies seem to be compatible for now.
+#COPY build-files/mesos.key /tmp/
+#RUN apt-get -y update && \
+#    apt-get install --no-install-recommends -y gnupg && \
+#    apt-key add /tmp/mesos.key && \
+#    echo "deb http://repos.mesosphere.io/ubuntu xenial main" > /etc/apt/sources.list.d/mesosphere.list && \
+#    apt-get -y update && \
+#    apt-get --no-install-recommends -y install mesos=1.2\* && \
+#    apt-get purge --auto-remove -y gnupg && \
+#    rm -rf /var/lib/apt/lists/*
 # <== pyspark-notebook (https://hub.docker.com/r/jupyter/pyspark-notebook/dockerfile)
 
 # Copy a script that we will use to correct permissions after running certain commands
@@ -188,7 +197,8 @@ RUN pip install --upgrade setuptools pip wheel \
     pyarrow==0.14.1 \
     # compress_pickle only works with pip, not conda
     compress_pickle \
-    xgboost && \
+    xgboost \
+    keras pymongo geopandas && \
     # geopandas bug - see https://github.com/geopandas/geopandas/issues/1113
     # pyproj==2.3.1 && \
     # pip install jupyterlab_latex && \
@@ -211,45 +221,49 @@ RUN conda install --quiet --yes 'tini=0.18.0' && \
 RUN conda install --quiet --yes \
     'notebook=6.0.3' \
     'jupyterhub=1.1.0' \
-    'jupyterlab=1.2.5' \
+    'jupyterlab=2.1.3' \
 # ==> scipy-notebook (https://hub.docker.com/r/jupyter/scipy-notebook/dockerfile)
-    'beautifulsoup4=4.8.2' \
-#    'conda-forge::blas=*=openblas' \
-    'bokeh=1.4.0' \
-    'cloudpickle=1.2.2' \
-    'cython=0.29.15' \
-    'dask=2.9.2' \
-    'dill=0.3.1.1' \
-    'h5py=2.10.0' \
-    'hdf5=1.10.5' \
-    'ipywidgets=7.5.1' \
-    'matplotlib-base=3.1.3' \
+    'beautifulsoup4=4.9.*' \
+    'conda-forge::blas=*=openblas' \
+    'bokeh=2.0.*' \
+    'bottleneck=1.3.*' \
+    'cloudpickle=1.4.*' \
+    'cython=0.29.*' \
+    'dask=2.15.*' \
+    'dill=0.3.*' \
+    'h5py=2.10.*' \
+    'hdf5=1.10.*' \
+    'ipywidgets=7.5.*' \
+    'ipympl=0.5.*'\
+    'matplotlib-base=3.2.*' \
     # numba update to 0.49 fails resolving deps.
-    'numba=0.48.0' \
-    'numexpr=2.7.1' \
-    'pandas=0.25.3' \
-    'patsy=0.5.1' \
-    'protobuf=3.11.0' \
-    'scikit-image=0.16.2' \
-    'scikit-learn=0.22.1' \
-    'scipy=1.4.1' \
-    'seaborn=0.9.0' \
-    'sqlalchemy=1.3.13' \
-    'statsmodels=0.11.0' \
-    'sympy=1.5.1' \
-    'vincent=0.4.4' \
-    'widgetsnbextension=3.5.1'\
-    'xlrd=1.2.0' \
+    'numba=0.48.*' \
+    'numexpr=2.7.*' \
+    'pandas=1.0.*' \
+    'patsy=0.5.*' \
+    'protobuf=3.11.*' \
+    'pytables=3.6.*' \
+    'scikit-image=0.16.*' \
+    'scikit-learn=0.22.*' \
+    'scipy=1.4.*' \
+    'seaborn=0.10.*' \
+    'sqlalchemy=1.3.*' \
+    'statsmodels=0.11.*' \
+    'sympy=1.5.*' \
+    'vincent=0.4.*' \
+    'widgetsnbextension=3.5.*'\
+    'xlrd=1.2.*' \
 # <== scipy-notebook (https://hub.docker.com/r/jupyter/scipy-notebook/dockerfile)
 # ==> pyspark-notebook (https://hub.docker.com/r/jupyter/pyspark-notebook/dockerfile)
 # too old, we rather install it with pip
 #    'pyarrow=0.14.1' \
 # <== pyspark-notebook (https://hub.docker.com/r/jupyter/pyspark-notebook/dockerfile)
 # ==> data-science-python (https://hub.docker.com/r/sidlo/data-science-python/dockerfile)
-    'tensorflow=2.1.0' \
-    'keras=2.3.1' \
-    'pymongo=3.10.1' \
-    'geopandas=0.7.0' \
+# install with pip instead of conda: (tensorflow does not work if we try to install with conda)
+#RUN conda install --yes --quiet \
+#    tensorflow keras \
+#    pymongo \
+#    geopandas && \
     && \
     # conda-forge: 
     conda install --yes --quiet --channel conda-forge \
@@ -266,13 +280,15 @@ RUN conda install --quiet --yes \
     'jupyter_nbextensions_configurator' \
     # ipywidgets \  # installed in scipy-notebook
     'jupyterlab-git' \
-    'findspark' \
     'qgrid' \
+    'findspark' \
     && \
     # other: 
     conda install --yes --quiet --channel plotly 'plotly' && \
 # <== data-science-python (https://hub.docker.com/r/sidlo/data-science-python/dockerfile)
-    conda clean --all -f -y
+    conda clean --all -f -y && \
+    fix-permissions $CONDA_DIR && \
+    fix-permissions /home/$NB_USER
 
 # ==> custom (moving generate-config upper, so it is generated before labextension commands)
 RUN jupyter notebook --generate-config && \
@@ -281,26 +297,17 @@ RUN jupyter notebook --generate-config && \
     jupyter contrib nbextension install --sys-prefix && \
     jupyter nbextension enable collapsible_headings/main --sys-prefix && \
     jupyter nbextension enable toc2/main --sys-prefix && \
+    jupyter nbextension enable --py --sys-prefix qgrid && \
     jupyter serverextension enable --py --sys-prefix jupyterlab_git && \
     jupyter nbextension install sparkmonitor --py --sys-prefix --symlink  && \
     jupyter nbextension enable sparkmonitor --py --sys-prefix && \
     jupyter serverextension enable --py --sys-prefix sparkmonitor && \
-    jupyter nbextension enable --py --sys-prefix qgrid && \
 # <== data-science-python (https://hub.docker.com/r/sidlo/data-science-python/dockerfile)
 # ==> scipy-notebook (https://hub.docker.com/r/jupyter/scipy-notebook/dockerfile)
     jupyter nbextension enable --py widgetsnbextension --sys-prefix && \
 # <== scipy-notebook (https://hub.docker.com/r/jupyter/scipy-notebook/dockerfile)
 # ==> data-science-python (https://hub.docker.com/r/sidlo/data-science-python/dockerfile)
     ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmonitor.kernelextension')" >>  $(ipython profile locate default)/ipython_kernel_config.py && \
-    jupyter labextension install @jupyterlab/git && \
-    jupyter labextension install @jupyterlab/geojson-extension && \
-    jupyter labextension install @jupyterlab/plotly-extension && \
-    jupyter labextension install @jupyterlab/vega2-extension && \
-    jupyter labextension install beakerx-jupyterlab && \
-    jupyter labextension install qgrid && \
-    jupyter labextension install @krassowski/jupyterlab_go_to_definition && \
-    jupyter labextension install jupyterlab_bokeh && \
-    jupyter labextension install bqplot  && \
 # <== data-science-python (https://hub.docker.com/r/sidlo/data-science-python/dockerfile)
 # ==> scipy-notebook (https://hub.docker.com/r/jupyter/scipy-notebook/dockerfile)
     # Also activate ipywidgets extension for JupyterLab
@@ -309,6 +316,30 @@ RUN jupyter notebook --generate-config && \
     jupyter labextension install @jupyter-widgets/jupyterlab-manager@^2.0.0 --no-build && \
     jupyter labextension install @bokeh/jupyter_bokeh@^2.0.0 --no-build && \
     jupyter labextension install jupyter-matplotlib@^0.7.2 --no-build && \
+# <== scipy-notebook (https://hub.docker.com/r/jupyter/scipy-notebook/dockerfile)
+# ==> data-science-python (https://hub.docker.com/r/sidlo/data-science-python/dockerfile)
+    jupyter labextension install @jupyterlab/git && \
+    jupyter labextension install @jupyterlab/geojson-extension && \
+#deprecated:    jupyter labextension install @jupyterlab/plotly-extension && \
+    jupyter labextension install jupyterlab-plotly@4.8.1 && \
+    jupyter labextension install @jupyterlab/vega2-extension && \
+#does not work with Jupyterlab 2:    jupyter labextension install beakerx-jupyterlab && \
+    jupyter labextension install qgrid && \
+    jupyter labextension install @krassowski/jupyterlab_go_to_definition && \
+#deprecated:   jupyter labextension install jupyterlab_bokeh && \
+    jupyter labextension install @bokeh/jupyter_bokeh && \
+    jupyter labextension install bqplot  && \
+    #jupyter labextension install @mflevine/jupyterlab_html && \
+    #jupyter labextension install @jupyterlab/fasta-extension && \
+    #jupyter labextension install @jupyterlab/latex && \
+    #jupyter serverextension enable --sys-prefix jupyterlab_latex && \
+    #jupyter labextension install @jupyterlab/github && \
+    #jupyter labextension install @jupyterlab/google-drive && \
+    #jupyter labextension install jupyterlab-kernelspy && \
+    #jupyter labextension install knowledgelab && \
+    #jupyter labextension install jupyterlab-drawio && \
+# <== data-science-python (https://hub.docker.com/r/sidlo/data-science-python/dockerfile)
+# ==> scipy-notebook (https://hub.docker.com/r/jupyter/scipy-notebook/dockerfile)
     jupyter lab build -y && \
     jupyter lab clean -y && \
 # <== scipy-notebook (https://hub.docker.com/r/jupyter/scipy-notebook/dockerfile)
@@ -347,3 +378,4 @@ RUN fix-permissions /etc/jupyter/
 
 # Switch back to jovyan to avoid accidental container runs as root
 USER $NB_UID
+RUN fix-permissions /home/$NB_USER
