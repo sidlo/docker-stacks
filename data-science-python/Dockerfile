@@ -44,6 +44,8 @@ RUN conda install --yes --quiet \
     geopandas \
     geopy \
     wfdb \
+    compress_pickle \
+    clickhouse-driver \
     folium \
     jupyter_contrib_nbextensions \
     jupyter_nbextensions_configurator \
