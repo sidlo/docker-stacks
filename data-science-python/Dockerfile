@@ -5,7 +5,7 @@ FROM jupyter/pyspark-notebook:latest
 USER root
 RUN apt-get update && \
     apt-get install -y --no-install-recommends libblas3 liblapack3 libstdc++6 \
-    python-setuptools graphviz python-pydot python-pydot-ng openssh-server telnet iputils-ping && \
+    python-setuptools graphviz python3-pydot python3-pydot-ng openssh-server telnet iputils-ping && \
     rm -rf /var/lib/apt/lists/* 
 
 # additional python packages (with the default user of pyspark-notebook):
@@ -74,26 +74,26 @@ RUN jupyter contrib nbextension install --sys-prefix && \
     jupyter nbextension enable sparkmonitor --py --sys-prefix && \
     jupyter serverextension enable --py --sys-prefix sparkmonitor && \
     ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmonitor.kernelextension')" >>  $(ipython profile locate default)/ipython_kernel_config.py && \
-    jupyter labextension install @jupyterlab/git && \
-    jupyter labextension install @jupyterlab/geojson-extension && \
-#deprecated:    jupyter labextension install @jupyterlab/plotly-extension && \
-    jupyter labextension install jupyterlab-plotly@4.8.1 && \
-    jupyter labextension install @jupyterlab/vega2-extension && \
-#does not work with Jupyterlab 2:    jupyter labextension install beakerx-jupyterlab && \
-    jupyter labextension install qgrid && \
-    jupyter labextension install @krassowski/jupyterlab_go_to_definition && \
-#deprecated:   jupyter labextension install jupyterlab_bokeh && \
-    jupyter labextension install @bokeh/jupyter_bokeh && \
-    jupyter labextension install bqplot  && \
-    #jupyter labextension install @mflevine/jupyterlab_html && \
-    #jupyter labextension install @jupyterlab/fasta-extension && \
-    #jupyter labextension install @jupyterlab/latex && \
+    jupyter labextension install @jupyterlab/git --no-build && \
+    jupyter labextension install @jupyterlab/geojson-extension --no-build && \
+#deprecated:    jupyter labextension install @jupyterlab/plotly-extension --no-build && \
+    jupyter labextension install jupyterlab-plotly@4.8.1 --no-build && \
+    jupyter labextension install @jupyterlab/vega2-extension --no-build && \
+#does not work with Jupyterlab 2:    jupyter labextension install beakerx-jupyterlab --no-build && \
+    jupyter labextension install qgrid --no-build && \
+    jupyter labextension install @krassowski/jupyterlab_go_to_definition --no-build && \
+#deprecated:   jupyter labextension install jupyterlab_bokeh --no-build && \
+    jupyter labextension install @bokeh/jupyter_bokeh --no-build && \
+    jupyter labextension install bqplot --no-build && \
+    #jupyter labextension install @mflevine/jupyterlab_html --no-build && \
+    #jupyter labextension install @jupyterlab/fasta-extension --no-build && \
+    #jupyter labextension install @jupyterlab/latex --no-build && \
     #jupyter serverextension enable --sys-prefix jupyterlab_latex && \
-    #jupyter labextension install @jupyterlab/github && \
-    #jupyter labextension install @jupyterlab/google-drive && \
-    #jupyter labextension install jupyterlab-kernelspy && \
-    #jupyter labextension install knowledgelab && \
-    #jupyter labextension install jupyterlab-drawio && \
+    #jupyter labextension install @jupyterlab/github --no-build && \
+    #jupyter labextension install @jupyterlab/google-drive --no-build && \
+    #jupyter labextension install jupyterlab-kernelspy --no-build && \
+    #jupyter labextension install knowledgelab --no-build && \
+    #jupyter labextension install jupyterlab-drawio --no-build && \
     # cleanup:
     rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
     npm cache clean --force && \
