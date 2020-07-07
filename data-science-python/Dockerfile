@@ -16,11 +16,12 @@ RUN pip install --upgrade setuptools pip wheel \
     # sparkmonitor fix: https://github.com/krishnan-r/sparkmonitor/issues/16 
     sparkmonitor-s==0.0.11 \
     #sparkmonitor \
-    # turicreate works now with python 3.7 support:
-    turicreate \
+    # turicreate does not work with python 3.8:
+    #turicreate \
     twython scrapy nltk xmltodict graphviz pydotplus psycopg2-binary google-cloud-bigquery \
     # pyarrow with spark currently only works with pip install, not the conda version, and only below v0.15
-    pyarrow==0.14.1 \
+    #pyarrow==0.14.1 \
+    pyarrow \
     # compress_pickle only works with pip, not conda
     compress_pickle \
     xgboost \
@@ -94,7 +95,9 @@ RUN jupyter contrib nbextension install --sys-prefix && \
     #jupyter labextension install jupyterlab-kernelspy --no-build && \
     #jupyter labextension install knowledgelab --no-build && \
     #jupyter labextension install jupyterlab-drawio --no-build && \
-    # cleanup:
+    # build and cleanup:
+    jupyter lab build -y && \
+    jupyter lab clean -y && \
     rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
     npm cache clean --force && \
     fix-permissions /home/$NB_USER
