@@ -269,7 +269,6 @@ RUN mkdir /home/$NB_USER/work && \
     'jupyterlab-git' \
     'qgrid' \
     'findspark' \
-    'plotly' \
 \
     # other: 
  && conda install --yes --quiet --channel plotly 'plotly' && \
