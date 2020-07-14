@@ -4,7 +4,7 @@
 # Ubuntu 20.04 (focal)
 # https://hub.docker.com/_/ubuntu/?tab=tags&name=focal
 # OS/ARCH: linux/amd64
-ARG ROOT_CONTAINER=ubuntu:focal-20200606@sha256:93fd0705706e5bdda6cc450b384d8d5afb18fecc19e054fe3d7a2c8c2aeb2c83
+ARG ROOT_CONTAINER=ubuntu:focal-20200703@sha256:d5a6519d9f048100123c568eb83f7ef5bfcad69b01424f420f17c932b00dea76
 ARG BASE_CONTAINER=$ROOT_CONTAINER
 FROM $BASE_CONTAINER
 
@@ -33,21 +33,21 @@ ENV PATH=$CONDA_DIR/bin:$PATH \
 ENV XDG_CACHE_HOME /home/$NB_USER/.cache/
 # <== scipy-notebook (https://hub.docker.com/r/jupyter/scipy-notebook/dockerfile)
 # ==> pyspark-notebook (https://hub.docker.com/r/jupyter/pyspark-notebook/dockerfile)
-ENV APACHE_SPARK_VERSION=2.4.5 \
-    HADOOP_VERSION=2.7
+ENV APACHE_SPARK_VERSION=3.0.0 \
+    HADOOP_VERSION=3.2
 # <== pyspark-notebook (https://hub.docker.com/r/jupyter/pyspark-notebook/dockerfile)
 # ==> pyspark-notebook (https://hub.docker.com/r/jupyter/pyspark-notebook/dockerfile)
 # Configure Spark
 ENV SPARK_HOME=/usr/local/spark
-ENV PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip \
+ENV PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.9-src.zip \
     SPARK_OPTS="--driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info" \
     PATH=$PATH:$SPARK_HOME/bin
 # <== pyspark-notebook (https://hub.docker.com/r/jupyter/pyspark-notebook/dockerfile)
 # Install conda as jovyan and check the md5 sum provided on the download site
 ENV MINICONDA_VERSION=4.8.3 \
-    MINICONDA_MD5=751786b92c00b1aeae3f017b781018df \
+    MINICONDA_MD5=d63adf39f2c220950a063e0529d4ff74 \
     CONDA_VERSION=4.8.3
-ENV MINICONDA_SETUP_FILENAME="Miniconda3-py37_"${MINICONDA_VERSION}"-Linux-x86_64.sh"
+ENV MINICONDA_SETUP_FILENAME="Miniconda3-py38_"${MINICONDA_VERSION}"-Linux-x86_64.sh"
 ENV MINICONDA_SETUP_URL="https://repo.anaconda.com/miniconda/"${MINICONDA_SETUP_FILENAME}
 
 # Copy a script that we will use to correct permissions after running certain commands
@@ -86,7 +86,7 @@ RUN apt-get -y update \
     # not in 20.04: texlive-generic-recommended \
     texlive-plain-generic \
     # Optional dependency
-    texlive-fonts-extra \
+    #texlive-fonts-extra \
     # ----
     tzdata \
     unzip \
@@ -97,7 +97,7 @@ RUN apt-get -y update \
     dvipng \
 # <== scipy-notebook (https://hub.docker.com/r/jupyter/scipy-notebook/dockerfile)
 # ==> pyspark-notebook (https://hub.docker.com/r/jupyter/pyspark-notebook/dockerfile)
-    openjdk-8-jre-headless \
+    openjdk-11-jre-headless \
     ca-certificates-java \
 # <== pyspark-notebook (https://hub.docker.com/r/jupyter/pyspark-notebook/dockerfile)
 # ==> data-science-python (https://hub.docker.com/r/sidlo/data-science-python/dockerfile)
@@ -121,7 +121,7 @@ RUN apt-get -y update \
  && cd /tmp && \
     wget -q $(wget -qO- https://www.apache.org/dyn/closer.lua/spark/spark-${APACHE_SPARK_VERSION}/spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz\?as_json | \
     python -c "import sys, json; content=json.load(sys.stdin); print(content['preferred']+content['path_info'])") && \
-    echo "2426a20c548bdfc07df288cd1d18d1da6b3189d0b78dee76fa034c52a4e02895f0ad460720c526f163ba63a17efae4764c46a1cd8f9b04c60f9937a554db85d2 *spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" | sha512sum -c - && \
+    echo "BFE45406C67CC4AE00411AD18CC438F51E7D4B6F14EB61E7BF6B5450897C2E8D3AB020152657C0239F253735C263512FFABF538AC5B9FFFA38B8295736A9C387 *spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" | sha512sum -c - && \
     tar xzf spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz -C /usr/local --owner root --group root --no-same-owner && \
     rm spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz && \
     cd /usr/local && ln -s spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} spark \
@@ -178,11 +178,9 @@ RUN mkdir /home/$NB_USER/work && \
     # sparkmonitor fix: https://github.com/krishnan-r/sparkmonitor/issues/16 
     sparkmonitor-s==0.0.11 \
     #sparkmonitor \
-    # turicreate works now with python 3.7 support:
-    turicreate \
+    # turicreate does not work with python 3.8:
+    #turicreate \
     twython scrapy nltk xmltodict graphviz pydotplus psycopg2-binary google-cloud-bigquery \
-    # pyarrow with spark currently only works with pip install, not the conda version, and only below v0.15
-    pyarrow==0.14.1 \
     # compress_pickle only works with pip, not conda
     compress_pickle \
     xgboost \
@@ -209,7 +207,9 @@ RUN mkdir /home/$NB_USER/work && \
  && conda install --quiet --yes \
     'notebook=6.0.3' \
     'jupyterhub=1.1.0' \
-    'jupyterlab=2.1.3' \
+    'jupyterlab=2.1.4' \
+# conda downgraded nodejs otherwise
+    'nodejs>=10.0.0' \
 # ==> scipy-notebook (https://hub.docker.com/r/jupyter/scipy-notebook/dockerfile)
     'beautifulsoup4=4.9.*' \
     'conda-forge::blas=*=openblas' \
@@ -232,7 +232,7 @@ RUN mkdir /home/$NB_USER/work && \
     'protobuf=3.11.*' \
     'pytables=3.6.*' \
     'scikit-image=0.16.*' \
-    'scikit-learn=0.22.*' \
+    'scikit-learn=0.23.*' \
     'scipy=1.4.*' \
     'seaborn=0.10.*' \
     'sqlalchemy=1.3.*' \
@@ -243,8 +243,7 @@ RUN mkdir /home/$NB_USER/work && \
     'xlrd=1.2.*' \
 # <== scipy-notebook (https://hub.docker.com/r/jupyter/scipy-notebook/dockerfile)
 # ==> pyspark-notebook (https://hub.docker.com/r/jupyter/pyspark-notebook/dockerfile)
-# too old, we rather install it with pip
-#    'pyarrow=0.14.1' \
+    'pyarrow' \
 # <== pyspark-notebook (https://hub.docker.com/r/jupyter/pyspark-notebook/dockerfile)
 # ==> data-science-python (https://hub.docker.com/r/sidlo/data-science-python/dockerfile)
 # install with pip instead of conda: (tensorflow does not work if we try to install with conda)
@@ -270,6 +269,7 @@ RUN mkdir /home/$NB_USER/work && \
     'jupyterlab-git' \
     'qgrid' \
     'findspark' \
+    'plotly' \
 \
     # other: 
  && conda install --yes --quiet --channel plotly 'plotly' && \

@@ -22,7 +22,7 @@ We assume a Docker service running and Docker commands available. We map the use
     docker run --name data-science-python -d --user root -e "NB_USER=johndoe" -e "NB_UID=1000" -p 8888:8888 \
     --mount type=bind,source=/home/johndoe/jupyter-home,target=/home/johndoe \
     --memory="8000m" --memory-swap="8000m" --cpus="4" \
-    -e "SPARK_OPTS=--driver-java-options=-Xmx8000M -XX:-UseGCOverheadLimit --driver-java-options=-Dlog4j.logLevel=info"
+    -e "SPARK_OPTS=--driver-java-options=-Xmx8000M -XX:-UseGCOverheadLimit --driver-java-options=-Dlog4j.logLevel=info -Dio.netty.tryReflectionSetAccessible=true"
     sidlo/data-science-python
 
 - `NB_UID` is the UID of the host OS which is used by Docker - the user should be able to read and write the mounted home directory,

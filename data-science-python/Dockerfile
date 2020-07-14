@@ -19,9 +19,6 @@ RUN pip install --upgrade setuptools pip wheel \
     # turicreate does not work with python 3.8:
     #turicreate \
     twython scrapy nltk xmltodict graphviz pydotplus psycopg2-binary google-cloud-bigquery \
-    # pyarrow with spark currently only works with pip install, not the conda version, and only below v0.15
-    #pyarrow==0.14.1 \
-    pyarrow \
     # compress_pickle only works with pip, not conda
     compress_pickle \
     xgboost \
@@ -100,14 +97,8 @@ RUN jupyter contrib nbextension install --sys-prefix && \
     jupyter lab clean -y && \
     rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
     npm cache clean --force && \
+    rm -rf /home/$NB_USER/.cache/yarn && \
     fix-permissions /home/$NB_USER
-
-# cleanup:
-#RUN rm -rf /home/$NB_USER/.cache/yarn && \
-
-#TODO: delete
-#RUN fix-permissions $CONDA_DIR && \
-#    fix-permissions /home/$NB_USER
 
 USER $NB_USER
 RUN fix-permissions /home/$NB_USER
