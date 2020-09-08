@@ -16,13 +16,13 @@ similar notebooks in a production (possibly distributed) environment.
 
 Examples are available in the [GitHub repo](https://github.com/sidlo/docker-stacks), the compiled image in the [Docker Hub repo](https://hub.docker.com/r/sidlo/data-science-python).
 
-## running the image
+## Running the image
 We assume a Docker service running and Docker commands available. We map the user of the host OS to the user in the container, and a host OS folder as the home folder. This way we can work with our notebooks in a persistent home folder, with the user of our host OS. On Linux, run: 
 
     docker run --name data-science-python -d --user root -e "NB_USER=johndoe" -e "NB_UID=1000" -p 8888:8888 \
     --mount type=bind,source=/home/johndoe/jupyter-home,target=/home/johndoe \
     --memory="8000m" --memory-swap="8000m" --cpus="4" \
-    -e "SPARK_OPTS=--driver-java-options=-Xmx8000M -XX:-UseGCOverheadLimit --driver-java-options=-Dlog4j.logLevel=info -Dio.netty.tryReflectionSetAccessible=true"
+    -e "SPARK_OPTS=--driver-java-options=-Xmx8000M -XX:-UseGCOverheadLimit --driver-java-options=-Dlog4j.logLevel=info"
     sidlo/data-science-python
 
 - `NB_UID` is the UID of the host OS which is used by Docker - the user should be able to read and write the mounted home directory,
@@ -40,7 +40,31 @@ We assume a Docker service running and Docker commands available. We map the use
   `type=bind,source=/c/Users/johndoe/jupyter-home,target=/home/johndoe`
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) on Windows 10 (professional) should also work without issues, but was not tested yet
 
-    
+### PySpark Arrow error workaround
+
+On image versions newer than 20200702, when using PyArrow (spark.config("spark.sql.execution.arrow.enabled", "true")) it will fail unless a Spark config is set when creating SparkSession in PySpark.
+
+Spark docs on this (https://spark.apache.org/docs/latest/):
+“For Java 11, -Dio.netty.tryReflectionSetAccessible=true is required additionally for Apache Arrow library. This prevents java.lang.UnsupportedOperationException: sun.misc.Unsafe or java.nio.DirectByteBuffer.(long, int) not available when Apache Arrow uses Netty internally. ”
+
+- One workaround is to set the config in every PySpark code/notebook
+```
+    SparkSession.builder.appName('...').config("spark.driver.extraJavaOptions", "-Dio.netty.tryReflectionSetAccessible=true")
+```
+  The notebook kernel has to be restarted for the config to take effect!
+  Use spark.sparkContext.getConf().getAll() to check.
+
+- Another way is to add it to Spark’s default config file:
+```
+    docker exec -it data-science-python-ecg /bin/bash
+    cp /usr/local/spark/conf/spark-defaults.conf.template /usr/local/spark/conf/spark-defaults.conf
+    nano /usr/local/spark/conf/spark-defaults.conf
+```
+  Config to be added:
+```
+    spark.driver.extraJavaOptions    -XX:-UseGCOverheadLimit -Dlog4j.logLevel=info -Dio.netty.tryReflectionSetAccessible=true
+```
+
 ## using the image
 - the notebook service runs on port 8888: 
   - http://localhost:8888/ works for old Jupyter inteface,
