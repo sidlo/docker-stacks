@@ -53,7 +53,7 @@ RUN conda install --yes --quiet --channel conda-forge \
     # ipywidgets \  # installed in scipy-notebook
     jupyterlab-git \
     qgrid \
-    findspark && \
+    gpxpy && \
     # other: 
     conda install --yes --quiet --channel plotly plotly && \
     # cleanup: 
