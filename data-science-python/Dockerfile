@@ -1,6 +1,9 @@
 # Start from a core stack version
 FROM jupyter/pyspark-notebook:latest
 
+# environmental variables
+ENV JUPYTER_ALLOW_INSECURE_WRITES=true
+
 # additinal ubuntu packages:
 USER root
 RUN apt-get update && \
@@ -22,9 +25,9 @@ RUN pip install --upgrade setuptools pip wheel \
     # compress_pickle only works with pip, not conda
     compress_pickle \
     xgboost \
-    keras pymongo geopandas && \
+    keras pymongo geopandas \
     # geopandas bug - see https://github.com/geopandas/geopandas/issues/1113
-    # pyproj==2.3.1 && \
+    # pyproj==2.3.1 && \ # moved to conda package and version 2.6.0
     # pip install jupyterlab_latex && \
     pip install -e git+https://github.com/SohierDane/BigQuery_Helper#egg=bq_helper
 
@@ -43,6 +46,7 @@ RUN conda install --yes --quiet --channel conda-forge \
     alpenglow \
     cufflinks-py \
     elasticsearch \
+    pyproj=2.6.0 \
     geopandas \
     geopy \
     wfdb \
