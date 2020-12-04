@@ -17,6 +17,7 @@ similar notebooks in a production (possibly distributed) environment.
 Examples are available in the [GitHub repo](https://github.com/sidlo/docker-stacks), the compiled image in the [Docker Hub repo](https://hub.docker.com/r/sidlo/data-science-python).
 
 ## Running the image
+
 We assume a Docker service running and Docker commands available. We map the user of the host OS to the user in the container, and a host OS folder as the home folder. This way we can work with our notebooks in a persistent home folder, with the user of our host OS. On Linux, run: 
 
     docker run --name data-science-python -d --user root -e "NB_USER=johndoe" -e "NB_UID=1000" -p 8888:8888 \
@@ -30,7 +31,7 @@ We assume a Docker service running and Docker commands available. We map the use
    - this home directory is mapped to the host source directory of `--mount`
    - `- e CHOWN_HOME=yes` might be required when users differ
 - it is useful to set CPU and memory limits
-   - we also have to set JVM paramters in `SPARK_OPTS` for Spark local to use the available container memory
+   - we also have to set JVM parameters in `SPARK_OPTS` for Spark local to use the available container memory
    - also check if SparkSession options are set `spark.executor.memory` and `spark.driver.memory` (see the related example in [examples](https://github.com/sidlo/docker-stacks/examples))
 - on Windows host, using [Docker Toolbox](https://docs.docker.com/toolbox/overview/): 
   - memory and CPU limits should be set in VirtualBox (Docker Toolbox is based on VirtualBox) - default is 1 CPU (use the VirtualBox GUI)
@@ -39,6 +40,29 @@ We assume a Docker service running and Docker commands available. We map the use
   - run the same `docker run` command as above, except that the mount should look something like 
   `type=bind,source=/c/Users/johndoe/jupyter-home,target=/home/johndoe`
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) on Windows 10 (professional) should also work without issues, but was not tested yet
+
+### Running the image with password, rather than an access token
+
+By default, you have to fill in a Jupyter access token generated when starting the container to restrict access (see "Using the image" section to locate the token).
+
+It is possible to use a custom password instead of the token. You can set the password's checksum as an argument when running the container:
+
+    docker run ... sidlo/data-science-python start-notebook.sh --NotebookApp.password="sha512:..."
+
+Where the You can generate the checksum by running the following in e.g. an empty Jupyter notebook: (as of 2020.12, the default argon2 algorithm had ambiguous output, so we use sha512)
+
+    from notebook.auth import passwd
+    passwd(algorithm="sha512")
+
+    Enter password: ········
+    Verify password: ········
+    'sha512:a792161c16ac:b3729c949700803d7fe5a90c371ae290f29cc79411a698345ad330acc262a97646ee5f674deea71cf6a52ec75c3c21f5943222dd1f6f6384d8c5ae87d8531d4a'
+
+### Running the image without token or password
+
+It is also possible to run the image without any authentication (e.g. for testing). Note that with all authentication disabled, anyone who can connect to the hosting machine will be able to run code! To do this, set the access token to empty when running the container:
+
+    docker run ... sidlo/data-science-python start-notebook.sh --NotebookApp.token=
 
 ### PySpark Arrow error workaround
 
@@ -65,13 +89,14 @@ Spark docs on this (https://spark.apache.org/docs/latest/):
     spark.driver.extraJavaOptions    -XX:-UseGCOverheadLimit -Dlog4j.logLevel=info -Dio.netty.tryReflectionSetAccessible=true
 ```
 
-## using the image
+## Using the image
 - the notebook service runs on port 8888: 
   - http://localhost:8888/ works for old Jupyter inteface,
   - http://localhost:8888/lab can be used for Jupyter Lab. 
   - Jupyter access token for authentication is written in the logs, to check run: 
   
     `docker logs --tail 3 data-science-python`
+
 - the [examples](https://github.com/sidlo/docker-stacks/examples) folder contains simple notebook examples to get started: 
   - `*-f1.ipynb` notebook use a public formula-1 results dataset to demonstrate CSV input, aggragation and joins.
   - `turi*`, `spark*` and `pandas*` notebooks solve the same tasks using Turi Create SFrame, PySpark SQL and Pandas DataFrame.
