@@ -22,6 +22,7 @@ RUN pip install --upgrade setuptools pip wheel \
     # turicreate does not work with python 3.8:
     #turicreate \
     twython scrapy nltk xmltodict graphviz pydotplus psycopg2-binary google-cloud-bigquery \
+    itables \
     # compress_pickle only works with pip, not conda
     compress_pickle \
     xgboost \
