@@ -1,5 +1,5 @@
 # Start from a core stack version
-FROM jupyter/pyspark-notebook:latest
+FROM jupyter/pyspark-notebook:aec555e49be6
 
 # environmental variables
 ENV JUPYTER_ALLOW_INSECURE_WRITES=true
@@ -48,6 +48,7 @@ RUN conda install --yes --quiet --channel conda-forge \
     cufflinks-py \
     elasticsearch \
     pyproj=2.6.0 \
+    pyod \
     geopandas \
     geopy \
     wfdb \
@@ -104,6 +105,18 @@ RUN jupyter contrib nbextension install --sys-prefix && \
     npm cache clean --force && \
     rm -rf /home/$NB_USER/.cache/yarn && \
     fix-permissions /home/$NB_USER
+
+# install ElasticSearch
+RUN wget --progress=dot:giga https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.2-amd64.deb && \
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.10.2-amd64.deb.sha512 && \
+    shasum -a 512 -c elasticsearch-7.10.2-amd64.deb.sha512 && \
+    dpkg -i elasticsearch-7.10.2-amd64.deb && \
+    rm elasticsearch-7.10.2-amd64.deb && \
+    rm elasticsearch-7.10.2-amd64.deb.sha512 && \
+    update-rc.d elasticsearch defaults 95 10
+
+COPY custom-start.sh /usr/local/bin/custom-start.sh
+CMD ["custom-start.sh"]
 
 USER $NB_USER
 RUN fix-permissions /home/$NB_USER
