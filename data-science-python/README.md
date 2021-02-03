@@ -20,12 +20,13 @@ Examples are available in the [GitHub repo](https://github.com/sidlo/docker-stac
 
 We assume a Docker service running and Docker commands available. We map the user of the host OS to the user in the container, and a host OS folder as the home folder. This way we can work with our notebooks in a persistent home folder, with the user of our host OS. On Linux, run: 
 
-    docker run --name data-science-python -d --user root -e "NB_USER=johndoe" -e "NB_UID=1000" -p 8888:8888 \
-    --mount type=bind,source=/home/johndoe/jupyter-home,target=/home/johndoe \
+    docker run --name data-science-python -d --user root -e "ES_ENABLED=yes" -e "NB_USER=johndoe" -e "NB_UID=1000" \
+    -p 8888:8888 --mount type=bind,source=/home/johndoe/jupyter-home,target=/home/johndoe \
     --memory="8000m" --memory-swap="8000m" --cpus="4" \
     -e "SPARK_OPTS=--driver-java-options=-Xmx8000M -XX:-UseGCOverheadLimit --driver-java-options=-Dlog4j.logLevel=info"
     sidlo/data-science-python
 
+- if `ES_ENABLED` is set to "yes", then ElasticSearch will be started when running the image
 - `NB_UID` is the UID of the host OS which is used by Docker - the user should be able to read and write the mounted home directory,
 - `NB_USER` is the user name inside the container - notebook service uses `/home/NB_USER` as home directory,
    - this home directory is mapped to the host source directory of `--mount`
@@ -47,7 +48,7 @@ By default, you have to fill in a Jupyter access token generated when starting t
 
 It is possible to use a custom password instead of the token. You can set the password's checksum as an argument when running the container:
 
-    docker run ... sidlo/data-science-python start-notebook.sh --NotebookApp.password="sha512:..."
+    docker run ... sidlo/data-science-python custom-start.sh --NotebookApp.password="sha512:..."
 
 Where the You can generate the checksum by running the following in e.g. an empty Jupyter notebook: (as of 2020.12, the default argon2 algorithm had ambiguous output, so we use sha512)
 
@@ -58,9 +59,17 @@ Where the You can generate the checksum by running the following in e.g. an empt
     Verify password: ········
     'sha512:a792161c16ac:b3729c949700803d7fe5a90c371ae290f29cc79411a698345ad330acc262a97646ee5f674deea71cf6a52ec75c3c21f5943222dd1f6f6384d8c5ae87d8531d4a'
 
+On older versions (older than 20210203) of the image, use start-notebook.sh instead of custom-start.sh:
+
+    docker run ... sidlo/data-science-python start-notebook.sh --NotebookApp.password="sha512:..."
+
 ### Running the image without token or password
 
 It is also possible to run the image without any authentication (e.g. for testing). Note that with all authentication disabled, anyone who can connect to the hosting machine will be able to run code! To do this, set the access token to empty when running the container:
+
+    docker run ... sidlo/data-science-python custom-start.sh --NotebookApp.token=
+
+On older versions (older than 20210203) of the image, use start-notebook.sh instead of custom-start.sh:
 
     docker run ... sidlo/data-science-python start-notebook.sh --NotebookApp.token=
 
