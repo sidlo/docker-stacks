@@ -17,20 +17,22 @@ RUN apt-get update && \
 # update pip (required for eg. turicreate), then install additional packages in one round (reducing image size)
 RUN pip install --upgrade setuptools pip wheel \
     # sparkmonitor fix: https://github.com/krishnan-r/sparkmonitor/issues/16 
-    sparkmonitor-s==0.0.11 \
+    # sparkmonitor-s==0.0.11 \
+    sparkmonitor \
     #sparkmonitor \
-    # turicreate does not work with python 3.8:
-    #turicreate \
     twython scrapy nltk xmltodict graphviz pydotplus psycopg2-binary google-cloud-bigquery \
     itables \
     # compress_pickle only works with pip, not conda
     compress_pickle \
-    xgboost \
-    keras pymongo geopandas \
+    xgboost keras pymongo karateclub chainer \
     # geopandas bug - see https://github.com/geopandas/geopandas/issues/1113
     # pyproj==2.3.1 && \ # moved to conda package and version 2.6.0
+    geopandas \
     # pip install jupyterlab_latex && \
     pip install -e git+https://github.com/SohierDane/BigQuery_Helper#egg=bq_helper
+
+# turicreate did not work with python 3.8, but it does now; however, there is a version problem with llvmlite
+RUN pip install turicreate --ignore-installed llvmlite
 
 # update conda, then install all packages in one round:
 # conda update -n base conda # updating conda doesn't seems to be unnecessary
