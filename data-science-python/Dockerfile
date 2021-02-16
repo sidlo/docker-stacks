@@ -19,7 +19,6 @@ RUN pip install --upgrade setuptools pip wheel \
     # sparkmonitor fix: https://github.com/krishnan-r/sparkmonitor/issues/16 
     # sparkmonitor-s==0.0.11 \
     sparkmonitor \
-    #sparkmonitor \
     twython scrapy nltk xmltodict graphviz pydotplus psycopg2-binary google-cloud-bigquery \
     itables \
     # compress_pickle only works with pip, not conda
@@ -27,7 +26,7 @@ RUN pip install --upgrade setuptools pip wheel \
     xgboost keras pymongo karateclub chainer \
     # geopandas bug - see https://github.com/geopandas/geopandas/issues/1113
     # pyproj==2.3.1 && \ # moved to conda package and version 2.6.0
-    geopandas \
+    geopandas && \
     # pip install jupyterlab_latex && \
     pip install -e git+https://github.com/SohierDane/BigQuery_Helper#egg=bq_helper
 
@@ -118,6 +117,7 @@ RUN wget --progress=dot:giga https://artifacts.elastic.co/downloads/elasticsearc
     update-rc.d elasticsearch defaults 95 10
 
 COPY custom-start.sh /usr/local/bin/custom-start.sh
+COPY --chown=$NB_USER:users jupyterhub_custom_config.py /home/$NB_USER/jupyterhub_custom_config.py
 CMD ["custom-start.sh"]
 
 USER $NB_USER
