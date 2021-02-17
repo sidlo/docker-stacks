@@ -20,13 +20,17 @@ Examples are available in the [GitHub repo](https://github.com/sidlo/docker-stac
 
 We assume a Docker service running and Docker commands available. We map the user of the host OS to the user in the container, and a host OS folder as the home folder. This way we can work with our notebooks in a persistent home folder, with the user of our host OS. On Linux, run: 
 
-    docker run --name data-science-python -d --user root -e "ES_ENABLED=true" -e "NB_USER=johndoe" -e "NB_UID=1000" \
+    docker run --name data-science-python -d --user root \
+    -e "ES_ENABLED=true" -e "JUPYTERHUB_ENABLED=true" \
+    -e "NB_USER=johndoe" -e "NB_UID=1000" \
     -p 8888:8888 --mount type=bind,source=/home/johndoe/jupyter-home,target=/home/johndoe \
     --memory="8000m" --memory-swap="8000m" --cpus="4" \
     -e "SPARK_OPTS=--driver-java-options=-Xmx8000M -XX:-UseGCOverheadLimit --driver-java-options=-Dlog4j.logLevel=info"
     sidlo/data-science-python
 
 - if `ES_ENABLED` is set to "true", then ElasticSearch will be started when running the image
+- if `JUPYTERHUB_ENABLED` is set to "true", then JupyterHub will be started when running the image
+  - JupyterHub will be started with custom settings in `jupyterhub_custom_config.py`
 - `NB_UID` is the UID of the host OS which is used by Docker - the user should be able to read and write the mounted home directory,
 - `NB_USER` is the user name inside the container - notebook service uses `/home/NB_USER` as home directory,
    - this home directory is mapped to the host source directory of `--mount`
