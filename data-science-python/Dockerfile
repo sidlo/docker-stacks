@@ -25,8 +25,8 @@ RUN pip install --upgrade setuptools pip wheel \
     compress_pickle \
     xgboost keras pymongo karateclub chainer \
     # geopandas bug - see https://github.com/geopandas/geopandas/issues/1113
-    # pyproj==2.3.1 && \ # moved to conda package and version 2.6.0
-    geopandas && \
+    # pyproj==2.3.1 && \ # using conda instead with version 2.6.0, then with 3.0.0
+    # geopandas && \
     # pip install jupyterlab_latex && \
     pip install -e git+https://github.com/SohierDane/BigQuery_Helper#egg=bq_helper
 
@@ -48,8 +48,8 @@ RUN conda install --yes --quiet --channel conda-forge \
     alpenglow \
     cufflinks-py \
     elasticsearch \
-    pyproj=2.6.0 \
     pyod \
+    pyproj \
     geopandas \
     geopy \
     wfdb \
