@@ -1,5 +1,5 @@
 # Start from a core stack version
-FROM jupyter/pyspark-notebook:aec555e49be6
+FROM jupyter/pyspark-notebook:latest
 
 # environmental variables
 ENV JUPYTER_ALLOW_INSECURE_WRITES=true
@@ -58,6 +58,7 @@ RUN conda install --yes --quiet --channel conda-forge \
     jupyter_contrib_nbextensions \
     jupyter_nbextensions_configurator \
     # ipywidgets \  # installed in scipy-notebook
+    jupyterlab=2.3.1 \
     jupyterlab-git \
     qgrid \
     gpxpy && \
