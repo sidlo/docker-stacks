@@ -18,7 +18,7 @@ RUN apt-get update && \
 RUN pip install --upgrade setuptools pip wheel \
     # sparkmonitor fix: https://github.com/krishnan-r/sparkmonitor/issues/16 
     # sparkmonitor-s==0.0.11 \
-    sparkmonitor \
+    # sparkmonitor \ # removed because it never worked, and makes pip downgrade jupyterlab 3 to 2
     twython scrapy nltk xmltodict graphviz pydotplus psycopg2-binary google-cloud-bigquery \
     itables \
     # compress_pickle only works with pip, not conda
@@ -52,14 +52,15 @@ RUN conda install --yes --quiet --channel conda-forge \
     pyproj \
     geopandas \
     geopy \
+    rasterio \
     wfdb \
     clickhouse-driver \
     folium \
     jupyter_contrib_nbextensions \
     jupyter_nbextensions_configurator \
+    jupyter_bokeh \
     # ipywidgets \  # installed in scipy-notebook
-    jupyterlab=2.3.1 \
-    jupyterlab-git \
+    # jupyterlab-git \ # removed because it created conda conflicts with jupyterlab 3
     qgrid \
     gpxpy && \
     # other: 
@@ -75,21 +76,22 @@ RUN jupyter contrib nbextension install --sys-prefix && \
     jupyter nbextension enable collapsible_headings/main --sys-prefix && \
     jupyter nbextension enable toc2/main --sys-prefix && \
     jupyter nbextension enable --py --sys-prefix qgrid && \
-    jupyter serverextension enable --py --sys-prefix jupyterlab_git && \
-    jupyter nbextension install sparkmonitor --py --sys-prefix --symlink  && \
-    jupyter nbextension enable sparkmonitor --py --sys-prefix && \
-    jupyter serverextension enable --py --sys-prefix sparkmonitor && \
-    ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmonitor.kernelextension')" >>  $(ipython profile locate default)/ipython_kernel_config.py && \
-    jupyter labextension install @jupyterlab/git --no-build && \
+    #jupyter serverextension enable --py --sys-prefix jupyterlab_git && \ # removed, see conda
+    #jupyter nbextension install sparkmonitor --py --sys-prefix --symlink  && \ # removed, see pip
+    #jupyter nbextension enable sparkmonitor --py --sys-prefix && \ # removed, see pip
+    #jupyter serverextension enable --py --sys-prefix sparkmonitor && \ # removed, see pip
+    #ipython profile create && echo "c.InteractiveShellApp.extensions.append('sparkmonitor.kernelextension')" >>  $(ipython profile locate default)/ipython_kernel_config.py && \ # removed, see pip
+    #jupyter labextension install @jupyterlab/git --no-build && \ # removed, see conda
     jupyter labextension install @jupyterlab/geojson-extension --no-build && \
 #deprecated:    jupyter labextension install @jupyterlab/plotly-extension --no-build && \
-    jupyter labextension install jupyterlab-plotly@4.8.1 --no-build && \
+    jupyter labextension install jupyterlab-plotly --no-build && \
     jupyter labextension install @jupyterlab/vega2-extension --no-build && \
 #does not work with Jupyterlab 2:    jupyter labextension install beakerx-jupyterlab --no-build && \
-    jupyter labextension install qgrid --no-build && \
+    #jupyter labextension install qgrid2 --no-build && \ # does not work with jupyterlab 3, using @j123npm fork:
+    jupyter labextension install @j123npm/qgrid2 --no-build && \
     jupyter labextension install @krassowski/jupyterlab_go_to_definition --no-build && \
 #deprecated:   jupyter labextension install jupyterlab_bokeh --no-build && \
-    jupyter labextension install @bokeh/jupyter_bokeh --no-build && \
+    #jupyter labextension install @bokeh/jupyter_bokeh --no-build && \ # only conda install is needed in jupyterlab 3
     jupyter labextension install bqplot --no-build && \
     #jupyter labextension install @mflevine/jupyterlab_html --no-build && \
     #jupyter labextension install @jupyterlab/fasta-extension --no-build && \
