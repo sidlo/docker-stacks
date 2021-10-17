@@ -8,7 +8,9 @@ ENV JUPYTER_ALLOW_INSECURE_WRITES=true
 USER root
 RUN apt-get update && \
     apt-get install -y --no-install-recommends libblas3 liblapack3 libstdc++6 \
-    python-setuptools graphviz python3-pydot python3-pydot-ng openssh-server telnet iputils-ping && \
+    python-setuptools graphviz python3-pydot python3-pydot-ng openssh-server telnet iputils-ping && \ 
+    ## temporary fix for https://github.com/ztane/python-Levenshtein/issues/46 : 
+    # python3-dev libxslt-dev libffi-dev libssl-dev& & \
     rm -rf /var/lib/apt/lists/* 
 
 # additional python packages (with the default user of pyspark-notebook):
@@ -19,19 +21,22 @@ RUN pip install --upgrade setuptools pip wheel \
     # sparkmonitor fix: https://github.com/krishnan-r/sparkmonitor/issues/16 
     # sparkmonitor-s==0.0.11 \
     # sparkmonitor \ # removed because it never worked, and makes pip downgrade jupyterlab 3 to 2
+    # TODO: use https://github.com/swan-cern/jupyter-extensions/tree/master/SparkMonitor 
     twython scrapy nltk xmltodict graphviz pydotplus psycopg2-binary google-cloud-bigquery \
     itables \
     # compress_pickle only works with pip, not conda
     compress_pickle \
-    xgboost keras pymongo karateclub chainer \
-    # geopandas bug - see https://github.com/geopandas/geopandas/issues/1113
-    # pyproj==2.3.1 && \ # using conda instead with version 2.6.0, then with 3.0.0
-    # geopandas && \
-    # pip install jupyterlab_latex && \
+    xgboost keras chainer pymongo  \ 
+    # karateclub does not compile with python 3.9 (building python-levenshtein dependency fails)
+    # might be fixed, did not work at first: https://linuxtect.com/the-error-command-gcc-failed-with-exit-status-1-error-and-solution
+    # karateclub
+    # pip install jupyterlab_latex \
+    && \
     pip install -e git+https://github.com/SohierDane/BigQuery_Helper#egg=bq_helper
 
 # turicreate did not work with python 3.8, but it does now; however, there is a version problem with llvmlite
-RUN pip install turicreate --ignore-installed llvmlite
+# now does not work with 3.9 
+# RUN pip install turicreate --ignore-installed llvmlite
 
 # update conda, then install all packages in one round:
 # conda update -n base conda # updating conda doesn't seems to be unnecessary
@@ -62,7 +67,8 @@ RUN conda install --yes --quiet --channel conda-forge \
     # ipywidgets \  # installed in scipy-notebook
     # jupyterlab-git \ # removed because it created conda conflicts with jupyterlab 3
     qgrid \
-    gpxpy && \
+    gpxpy \
+    catboost shap && \
     # other: 
     conda install --yes --quiet --channel plotly plotly && \
     # cleanup: 
