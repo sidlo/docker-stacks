@@ -8,7 +8,7 @@ ENV JUPYTER_ALLOW_INSECURE_WRITES=true
 USER root
 RUN apt-get update && \
     apt-get install -y --no-install-recommends libblas3 liblapack3 libstdc++6 \
-    python-setuptools graphviz python3-pydot python3-pydot-ng openssh-server telnet iputils-ping && \ 
+    python-setuptools graphviz python3-pydot openssh-server telnet iputils-ping && \ 
     ## temporary fix for https://github.com/ztane/python-Levenshtein/issues/46 : 
     # python3-dev libxslt-dev libffi-dev libssl-dev& & \
     rm -rf /var/lib/apt/lists/* 
@@ -26,13 +26,13 @@ RUN pip install --upgrade setuptools pip wheel \
     itables \
     # compress_pickle only works with pip, not conda
     compress_pickle \
-    xgboost keras chainer pymongo  \ 
+    xgboost keras chainer pymongo
     # karateclub does not compile with python 3.9 (building python-levenshtein dependency fails)
     # might be fixed, did not work at first: https://linuxtect.com/the-error-command-gcc-failed-with-exit-status-1-error-and-solution
     # karateclub
     # pip install jupyterlab_latex \
-    && \
-    pip install -e git+https://github.com/SohierDane/BigQuery_Helper#egg=bq_helper
+#    && \ # does not work with newest pip (~22), setup.py: "Multiple top-level modules discovered in a flat-layout"
+#    pip install -e 'git+https://github.com/SohierDane/BigQuery_Helper#egg=bq_helper'
 
 # turicreate did not work with python 3.8, but it does now; however, there is a version problem with llvmlite
 # now does not work with 3.9 
@@ -64,6 +64,8 @@ RUN conda install --yes --quiet --channel conda-forge \
     jupyter_contrib_nbextensions \
     jupyter_nbextensions_configurator \
     jupyter_bokeh \
+    # ipywidgets \ # ipywidgets 8 is not yet compatible with qgrid
+    ipywidgets~=7.0 \
     # ipywidgets \  # installed in scipy-notebook
     # jupyterlab-git \ # removed because it created conda conflicts with jupyterlab 3
     qgrid \
