@@ -26,7 +26,8 @@ RUN pip install --upgrade setuptools pip wheel \
     itables \
     # compress_pickle only works with pip, not conda
     compress_pickle \
-    xgboost keras chainer pymongo
+    xgboost tensorflow chainer pymongo
+    # xgboost keras chainer pymongo # new recommendation: install keras as part of tensorflow
     # karateclub does not compile with python 3.9 (building python-levenshtein dependency fails)
     # might be fixed, did not work at first: https://linuxtect.com/the-error-command-gcc-failed-with-exit-status-1-error-and-solution
     # karateclub
