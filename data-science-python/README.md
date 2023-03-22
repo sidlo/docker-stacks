@@ -1,15 +1,15 @@
 # data-science-python docker image
 
 Personalized docker image for Python-based data science, extending [Jupyter Docker Stacks](https://github.com/jupyter/docker-stacks) images (specifically the pyspark-notebook), adding
-* Jupyterlab extensions for e.g. GIT, GitHub, Latex, TOC 
+* Jupyterlab extensions for e.g. collapsible headings, TOC
 * further command-line tools, e.g. ping and telnet,
 * findspark for easy PySpark setup,
-* BigQuery python client,
-* psycog2 PostgreSQl python lib,
-* Turi Create
+* BigQuery python client (google-cloud-bigquery),
+* psycopg2 PostgreSQl python lib,
 * elasticsearch
 * alpenglow
-* various other libraries, eg. twython, pymongo, scrapy, nltk, trectools, xmltodict, xgboost
+* various other libraries, eg. twython, pymongo, scrapy, nltk, xmltodict, xgboost
+* (removed: Turi Create, trectools, Jupyter notebook extensions for GIT, GitHub, LateX)
 
 The goal is to enable testing and developing various alternative data processing pipelines on a single server or on a laptop, in a uniform Docker-based environment, before using the same or very 
 similar notebooks in a production (possibly distributed) environment. 
@@ -20,10 +20,10 @@ Examples are available in the [GitHub repo](https://github.com/sidlo/docker-stac
 
 We assume a Docker service running and Docker commands available. We map the user of the host OS to the user in the container, and a host OS folder as the home folder. This way we can work with our notebooks in a persistent home folder, with the user of our host OS. On Linux, run: 
 
-    docker run --name data-science-python -d --user root \
+    docker run --name data-science-python -d --user root --restart unless-stopped \
     -e "ES_ENABLED=true" -e "JUPYTERHUB_ENABLED=true" \
-    -e "NB_USER=johndoe" -e "NB_UID=1000" \
-    -p 8888:8888 --mount type=bind,source=/home/johndoe/jupyter-home,target=/home/johndoe \
+    -e "NB_USER=jovyan" -e "NB_GROUP=users" -e "NB_UID=[host uid]" -e "NB_GID=[host gid]" -e CHOWN_HOME_OPTS='-R' -w / \
+    -p 8888:8888 --mount type=bind,src=/home/[host user]/jupyter-home,target=/home/jovyan \
     --memory="8000m" --memory-swap="8000m" --cpus="4" \
     -e "SPARK_OPTS=--driver-java-options=-Xmx8000M -XX:-UseGCOverheadLimit --driver-java-options=-Dlog4j.logLevel=info"
     sidlo/data-science-python
@@ -31,8 +31,8 @@ We assume a Docker service running and Docker commands available. We map the use
 - if `ES_ENABLED` is set to "true", then ElasticSearch will be started when running the image
 - if `JUPYTERHUB_ENABLED` is set to "true", then JupyterHub will be started when running the image
   - JupyterHub will be started with custom settings in `jupyterhub_custom_config.py`
-- `NB_UID` is the UID of the host OS which is used by Docker - the user should be able to read and write the mounted home directory,
-- `NB_USER` is the user name inside the container - notebook service uses `/home/NB_USER` as home directory,
+- `NB_UID` and `NB_GID` are the UID and GID of the host OS which is used by Docker - the user should be able to read and write the mounted home directory,
+- `NB_USER` and `NB_GROUP` are the user and group name inside the container - notebook service uses `/home/NB_USER` as home directory,
    - this home directory is mapped to the host source directory of `--mount`
    - `- e CHOWN_HOME=yes` might be required when users differ
 - it is useful to set CPU and memory limits
@@ -116,7 +116,4 @@ Spark docs on this (https://spark.apache.org/docs/latest/):
 
 ## links
 - the base image used is the [Docker Stacks pyspark-notebook](https://github.com/jupyter/docker-stacks/tree/master/pyspark-notebook)
-
-## notes 
-- sparkmonitor notebook extension is currently installed, but buggy in the given jupyter environment - still to be fixed 
 
