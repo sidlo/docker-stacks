@@ -1,6 +1,5 @@
 # Start from a core stack version
 FROM jupyter/pyspark-notebook:latest
-
 # environmental variables
 ENV JUPYTER_ALLOW_INSECURE_WRITES=true
 
@@ -14,7 +13,7 @@ RUN apt-get update --yes && \
 
 # additional python packages (with the default user of pyspark-notebook):
 RUN mamba install --yes --quiet --channel conda-forge \
-    'alpenglow' \
+    # 'alpenglow==1.0.4' \
     'asammdf[gui]' \
     'blas' \
     'bqplot' \
@@ -34,8 +33,8 @@ RUN mamba install --yes --quiet --channel conda-forge \
     'hdbscan' \
     'itables' \
     'jupyter_bokeh' \
-    'jupyter_contrib_nbextensions' \
-    'jupyter_nbextensions_configurator' \
+    # 'jupyter_contrib_nbextensions==0.5.0' \
+    # 'jupyter_nbextensions_configurator' \
     'jupyter-lsp-python' \
     'jupyterlab-geojson' \
     'jupyterlab-lsp' \
@@ -48,12 +47,12 @@ RUN mamba install --yes --quiet --channel conda-forge \
     'pyod' \
     'pyproj' \
     'rasterio' \
-    'retrolab' \
+    # 'retrolab' \
     'scrapy' \
     'shap' \
     'tensorflow' \
     'twython' \
-    'vaex' \
+    # 'vaex' \
     'wfdb' \
     'xgboost' \
     'xmltodict' \
@@ -63,9 +62,9 @@ RUN mamba install --yes --quiet --channel conda-forge \
     # openpyxl \ # already installed in base image
     # older dropped packages: sparkmonitor karateclub jupyterlab_latex
 # install and enable Jupyter/JupyterLab extensions and cleanup
-    jupyter contrib nbextension install --sys-prefix && \
-    jupyter nbextension enable collapsible_headings/main --sys-prefix && \
-    jupyter nbextension enable toc2/main --sys-prefix && \
+   #  jupyter contrib nbextension install --sys-prefix && \
+   # jupyter nbextension enable collapsible_headings/main --sys-prefix && \
+   # jupyter nbextension enable toc2/main --sys-prefix && \
     mamba clean --all -f -y && \
     npm cache clean --force && \
     jupyter lab clean -y && \
