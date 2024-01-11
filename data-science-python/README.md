@@ -1,17 +1,18 @@
 # data-science-python docker image
 
 Personalized docker image for Python-based data science, extending [Jupyter Docker Stacks](https://github.com/jupyter/docker-stacks) images (specifically the pyspark-notebook), adding
-* Jupyterlab extensions for e.g. collapsible headings, TOC
-* further command-line tools, e.g. ping and telnet,
-* findspark for easy PySpark setup,
-* BigQuery python client (google-cloud-bigquery),
-* psycopg2 PostgreSQl python lib,
-* elasticsearch
-* alpenglow
+* Jupyterlab extensions: LSP Language Server Protocol
+* further command-line tools, e.g. vim, gawk, htop, ping, telnet
+* findspark for easy PySpark setup
+* BigQuery python client (google-cloud-bigquery)
+* psycopg2 PostgreSQl python lib
 * various other libraries, eg. twython, pymongo, scrapy, nltk, xmltodict, xgboost
-* (removed: Turi Create, trectools, Jupyter notebook extensions for GIT, GitHub, LateX)
+* (disabled by commenting out in Dockerfile: elasticsearch)
+* (removed: alpenglow, vaex, Turi Create, trectools, Jupyter notebook extensions for GIT, GitHub, LateX)
 
-The goal is to enable testing and developing various alternative data processing pipelines on a single server or on a laptop, in a uniform Docker-based environment, before using the same or very 
+The goal is to enable testing and developing various alternative
+data processing pipelines on a single server or on a laptop,
+in a uniform Docker-based environment, before using the same or very 
 similar notebooks in a production (possibly distributed) environment. 
 
 Examples are available in the [GitHub repo](https://github.com/sidlo/docker-stacks), the compiled image in the [Docker Hub repo](https://hub.docker.com/r/sidlo/data-science-python).
@@ -21,26 +22,28 @@ Examples are available in the [GitHub repo](https://github.com/sidlo/docker-stac
 We assume a Docker service running and Docker commands available. We map the user of the host OS to the user in the container, and a host OS folder as the home folder. This way we can work with our notebooks in a persistent home folder, with the user of our host OS. On Linux, run: 
 
     docker run --name data-science-python -d --user root --restart unless-stopped \
-    -e "ES_ENABLED=true" -e "JUPYTERHUB_ENABLED=true" \
-    -e "NB_USER=jovyan" -e "NB_GROUP=users" -e "NB_UID=[host uid]" -e "NB_GID=[host gid]" -e CHOWN_HOME_OPTS='-R' -w / \
+    -e "NB_USER=jovyan" -e "NB_GROUP=users" -e "NB_UID=[host uid]" -e "NB_GID=[host gid]" \
     -p 8888:8888 --mount type=bind,src=/home/[host user]/jupyter-home,target=/home/jovyan \
-    --memory="8000m" --memory-swap="8000m" --cpus="4" \
-    -e "SPARK_OPTS=--driver-java-options=-Xmx8000M -XX:-UseGCOverheadLimit --driver-java-options=-Dlog4j.logLevel=info"
-    sidlo/data-science-python
+    -e "SPARK_OPTS=--driver-java-options=-Xmx10G -XX:-UseGCOverheadLimit --driver-java-options=-Dlog4j.logLevel=info"
+    --memory="10G" --memory-swap="10G" --cpus="4" sidlo/data-science-python
 
-- if `ES_ENABLED` is set to "true", then ElasticSearch will be started when running the image
-- if `JUPYTERHUB_ENABLED` is set to "true", then JupyterHub will be started when running the image
-  - JupyterHub will be started with custom settings in `jupyterhub_custom_config.py`
+- The mounted home directory has to be created before running the command (otherwise docker will create it with root:root owner, making it unusable)
+- Use of `NB_UID`, etc. can be replaced by docker run's `--user` and `--group-add` parameters so that multiple groups can be defined
+  - this is the only way to add multiple groups when running the image
+  - other alternative is to build an image on top of this, which adds the needed groups and the user to these groups
 - `NB_UID` and `NB_GID` are the UID and GID of the host OS which is used by Docker - the user should be able to read and write the mounted home directory,
 - `NB_USER` and `NB_GROUP` are the user and group name inside the container - notebook service uses `/home/NB_USER` as home directory,
    - this home directory is mapped to the host source directory of `--mount`
    - `- e CHOWN_HOME=yes` might be required when users differ
-- it is useful to set CPU and memory limits
+- it is useful to set CPU and memory limits (maybe also IO: look for iops in docker run parameters)
    - we also have to set JVM parameters in `SPARK_OPTS` for Spark local to use the available container memory
    - also check if SparkSession options are set `spark.executor.memory` and `spark.driver.memory` (see the related example in [examples](https://github.com/sidlo/docker-stacks/examples))
+- installing ElasticSearch server disabled in the image by default, an image has to be built with the install enabled if ES is needed:
+  - if `ES_ENABLED` is set to "true", then ElasticSearch will be started when running the image
+- Custom JupyterHub settings are obsolete, JupyterHub is always started:
+  - if `JUPYTERHUB_ENABLED` is set to "true", then JupyterHub will be started with custom settings in `jupyterhub_custom_config.py`
 - on Windows host, using [Docker Toolbox](https://docs.docker.com/toolbox/overview/): 
   - memory and CPU limits should be set in VirtualBox (Docker Toolbox is based on VirtualBox) - default is 1 CPU (use the VirtualBox GUI)
-
   - Use the GUI called “Kitematic”: open a CLI clicking the bottom-left “DOCKER CLI” icon
   - run the same `docker run` command as above, except that the mount should look something like 
   `type=bind,source=/c/Users/johndoe/jupyter-home,target=/home/johndoe`
@@ -103,6 +106,7 @@ Spark docs on this (https://spark.apache.org/docs/latest/):
 ```
 
 ## Using the image
+
 - the notebook service runs on port 8888: 
   - http://localhost:8888/ works for old Jupyter inteface,
   - http://localhost:8888/lab can be used for Jupyter Lab. 
@@ -110,7 +114,8 @@ Spark docs on this (https://spark.apache.org/docs/latest/):
   
     `docker logs --tail 3 data-science-python`
 
-- the [examples](https://github.com/sidlo/docker-stacks/examples) folder contains simple notebook examples to get started: 
+- the [examples](https://github.com/sidlo/docker-stacks/examples) folder contains simple notebook examples to get started:
+  - `*-test-notebook` to test some interactive python packages and check versions
   - `*-f1.ipynb` notebook use a public formula-1 results dataset to demonstrate CSV input, aggragation and joins.
   - `turi*`, `spark*` and `pandas*` notebooks solve the same tasks using Turi Create SFrame, PySpark SQL and Pandas DataFrame.
 
