@@ -1,5 +1,4 @@
 # Start from a core stack version
-#FROM jupyter/pyspark-notebook:latest
 FROM quay.io/jupyter/pyspark-notebook:2024-01-08
 # environmental variables
 ENV JUPYTER_ALLOW_INSECURE_WRITES=true
@@ -14,7 +13,6 @@ RUN apt-get update --yes && \
 
 # additional python packages (with the default user of pyspark-notebook):
 RUN mamba install --yes --quiet --channel conda-forge \
-    # 'alpenglow==1.0.4' \
     'asammdf[gui]' \
     'blas' \
     'bqplot' \
@@ -34,14 +32,12 @@ RUN mamba install --yes --quiet --channel conda-forge \
     'hdbscan' \
     'itables' \
     'jupyter_bokeh' \
-    # 'jupyter_contrib_nbextensions==0.5.0' \
-    # 'jupyter_nbextensions_configurator' \
     'jupyter-lsp-python' \
     'jupyterlab-geojson' \
     'jupyterlab-lsp' \
     'jupyterlab=4' \
     'nltk' \
-    'pandas=2' \
+    'pandas' \
     'plotly' \
     'polars' \
     'psycopg2-binary' \
@@ -50,24 +46,19 @@ RUN mamba install --yes --quiet --channel conda-forge \
     'pyod' \
     'pyproj' \
     'rasterio' \
-    # 'retrolab' \
     'scrapy' \
     'shap' \
     'tensorflow' \
     'twython' \
-    # 'vaex' \
     'wfdb' \
     'xgboost' \
     'xmltodict' \
     && \
-    # jupyterlab-git \ # removed because it created conda conflicts with jupyterlab 3
-    # qgrid \ # latest 1.3.1 is too old, needs ipywidgets~=7, which does not work with the newest jupyter
-    # openpyxl \ # already installed in base image
-    # older dropped packages: sparkmonitor karateclub jupyterlab_latex
-# install and enable Jupyter/JupyterLab extensions and cleanup
-   #  jupyter contrib nbextension install --sys-prefix && \
-   # jupyter nbextension enable collapsible_headings/main --sys-prefix && \
-   # jupyter nbextension enable toc2/main --sys-prefix && \
+    # 'alpenglow==1.0.4' \ 
+    # 'vaex' \
+    # 'qgrid' \ # latest 1.3.1 is too old, needs ipywidgets~=7, which does not work with the newest jupyter
+    # 'openpyxl' 'jupyterlab-git' \ # already installed in base image
+    # 'sparkmonitor' 'karateclub' 'jupyterlab_latex' \ # older dropped packages
     mamba clean --all -f -y && \
     npm cache clean --force && \
     jupyter lab clean -y && \
@@ -77,28 +68,16 @@ RUN mamba install --yes --quiet --channel conda-forge \
     fix-permissions ${CONDA_DIR} && \
     fix-permissions /home/${NB_USER}
 
-# ElasticSearch: when changing between versions 7 and 8, custom_start.sh also needs to be changed!
-
-# ElasticSearch 7, disabling security to supress warnings
-# RUN wget --progress=dot:giga https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.17.9-amd64.deb && \
-#     wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.17.9-amd64.deb.sha512 && \
-#     shasum -a 512 -c elasticsearch-7.17.9-amd64.deb.sha512 && \
-#     dpkg -i elasticsearch-7.17.9-amd64.deb && \
-#     rm elasticsearch-7.17.9-amd64.deb && \
-#     rm elasticsearch-7.17.9-amd64.deb.sha512 && \
-#     sed -i 's/\(^xpack.security.enabled:\) true$/\1 false # DOCKER-STACKS-MOD: disabled security/' /etc/elasticsearch/elasticsearch.yml && \
-#     update-rc.d elasticsearch defaults 95 10
-
-# ElasticSearch 8, forces TLS and multi-node by default, we disable them
-RUN wget --progress=dot:giga https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.11.3-amd64.deb && \
-    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.11.3-amd64.deb.sha512 && \
-    shasum -a 512 -c elasticsearch-8.11.3-amd64.deb.sha512 && \
-    dpkg -i elasticsearch-8.11.3-amd64.deb && \
-    rm elasticsearch-8.11.3-amd64.deb && \
-    rm elasticsearch-8.11.3-amd64.deb.sha512 && \
-    sed -i 's/\(^cluster.initial_master_nodes.*$\)/#\1 # DOCKER-STACKS-MOD: commented out to only run in single node mode/' /etc/elasticsearch/elasticsearch.yml && \
-    sed -i 's/\(^xpack.security.enabled:\) true$/\1 false # DOCKER-STACKS-MOD: disabled security/' /etc/elasticsearch/elasticsearch.yml && \
-    chown ${NB_UID}:${NB_GID} -R /usr/share/elasticsearch /var/log/elasticsearch /var/lib/elasticsearch /etc/default/elasticsearch /etc/elasticsearch && chmod ug+x /etc/default/elasticsearch
+## ElasticSearch 8, forces TLS and multi-node by default, we disable them
+#RUN wget --progress=dot:giga https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.6.2-amd64.deb && \
+#    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.6.2-amd64.deb.sha512 && \
+#    shasum -a 512 -c elasticsearch-8.6.2-amd64.deb.sha512 && \
+#    dpkg -i elasticsearch-8.6.2-amd64.deb && \
+#    rm elasticsearch-8.6.2-amd64.deb && \
+#    rm elasticsearch-8.6.2-amd64.deb.sha512 && \
+#    sed -i 's/\(^cluster.initial_master_nodes.*$\)/#\1 # DOCKER-STACKS-MOD: commented out to only run in single node mode/' /etc/elasticsearch/elasticsearch.yml && \
+#    sed -i 's/\(^xpack.security.enabled:\) true$/\1 false # DOCKER-STACKS-MOD: disabled security/' /etc/elasticsearch/elasticsearch.yml && \
+#    chown ${NB_UID}:${NB_GID} -R /usr/share/elasticsearch /var/log/elasticsearch /var/lib/elasticsearch /etc/default/elasticsearch /etc/elasticsearch && chmod ug+x /etc/default/elasticsearch
 
 COPY custom-start.sh /usr/local/bin/custom-start.sh
 COPY jupyterhub_custom_config.py /etc/jupyter/jupyterhub_custom_config.py
