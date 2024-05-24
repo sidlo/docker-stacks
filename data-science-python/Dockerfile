@@ -1,5 +1,5 @@
 # Start from a core stack version
-FROM quay.io/jupyter/pyspark-notebook:2024-01-08
+FROM quay.io/jupyter/pyspark-notebook:2024-02-13
 # environmental variables
 ENV JUPYTER_ALLOW_INSECURE_WRITES=true
 
@@ -33,9 +33,10 @@ RUN mamba install --yes --quiet --channel conda-forge \
     'itables' \
     'jupyter_bokeh' \
     'jupyter-lsp-python' \
+    'jupyter-resource-usage' \
     'jupyterlab-geojson' \
     'jupyterlab-lsp' \
-    'jupyterlab=4' \
+    'jupyterlab' \
     'nltk' \
     'pandas' \
     'plotly' \
