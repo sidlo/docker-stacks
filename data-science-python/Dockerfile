@@ -1,18 +1,18 @@
 # Start from a core stack version
-FROM quay.io/jupyter/pyspark-notebook:2024-02-13
+FROM quay.io/jupyter/scipy-notebook:2024-11-25
 # environmental variables
 ENV JUPYTER_ALLOW_INSECURE_WRITES=true
 
 # additinal ubuntu packages:
 USER root
 RUN apt-get update --yes && \
-    apt-get install --yes --no-install-recommends vim gawk htop libblas3 liblapack3 libstdc++6 \
-    python-setuptools graphviz python3-pydot openssh-server telnet iputils-ping && \ 
+    apt-get install --yes --no-install-recommends man-db vim gawk htop \
+    python3-setuptools graphviz python3-pydot openssh-server telnet iputils-ping && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* 
 
-# additional python packages (with the default user of pyspark-notebook):
-RUN mamba install --yes --quiet --channel conda-forge \
+# additional python packages (with the default user of scipy-notebook):
+RUN mamba install --yes --quiet -c pytorch -c conda-forge \
     'asammdf[gui]' \
     'blas' \
     'bqplot' \
@@ -20,8 +20,11 @@ RUN mamba install --yes --quiet --channel conda-forge \
     'chainer' \
     'clickhouse-driver' \
     'compress-pickle' \
+    'contextily' \
     'cufflinks-py' \
+    'dtw-python' \
     'elasticsearch' \
+    'fastdtw' \
     'findspark' \
     'folium' \
     'geopandas' \
@@ -29,7 +32,10 @@ RUN mamba install --yes --quiet --channel conda-forge \
     'google-cloud-bigquery' \
     'gpxpy' \
     'graphviz' \
+    'grpcio-status' \
+    'grpcio' \
     'hdbscan' \
+    'intervaltree' \
     'itables' \
     'jupyter_bokeh' \
     'jupyter-lsp-python' \
@@ -37,19 +43,32 @@ RUN mamba install --yes --quiet --channel conda-forge \
     'jupyterlab-geojson' \
     'jupyterlab-lsp' \
     'jupyterlab' \
+    'keras' \
     'nltk' \
     'pandas' \
     'plotly' \
     'polars' \
     'psycopg2-binary' \
+    'pyarrow' \
+    'pydeck' \
+    'pydot' \
     'pydotplus' \
     'pymongo' \
     'pyod' \
     'pyproj' \
+    'pyspark' \
+    'pytorch' \
     'rasterio' \
     'scrapy' \
+    'sentinelhub' \
+    'setuptools' \
     'shap' \
+    'shapely' \
+    'streamlit' \
+    'torchaudio' \
+    'torchvision' \
     'tensorflow' \
+    'tslearn' \
     'twython' \
     'wfdb' \
     'xgboost' \
@@ -60,11 +79,12 @@ RUN mamba install --yes --quiet --channel conda-forge \
     # 'qgrid' \ # latest 1.3.1 is too old, needs ipywidgets~=7, which does not work with the newest jupyter
     # 'openpyxl' 'jupyterlab-git' \ # already installed in base image
     # 'sparkmonitor' 'karateclub' 'jupyterlab_latex' \ # older dropped packages
+    # pip install 'sparkmonitor' && \ # rather install it from JupyterLab's web interface / extensions (Pypi manager)
     mamba clean --all -f -y && \
-    npm cache clean --force && \
+    # npm cache clean --force && \ # no npm in scipy-notebook image
     jupyter lab clean -y && \
     rm -rf ${CONDA_DIR}/share/jupyter/lab/staging && \
-    npm cache clean --force && \
+    # npm cache clean --force && \ # no npm in scipy-notebook image
     rm -rf /home/${NB_USER}/.cache/yarn && \
     fix-permissions ${CONDA_DIR} && \
     fix-permissions /home/${NB_USER}
