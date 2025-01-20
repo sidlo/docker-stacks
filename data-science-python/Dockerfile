@@ -2,12 +2,15 @@
 FROM quay.io/jupyter/scipy-notebook:2024-11-25
 # environmental variables
 ENV JUPYTER_ALLOW_INSECURE_WRITES=true
+ENV SPARK_OPTS="--driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info"
 
-# additinal ubuntu packages:
+# additinal ubuntu packages: (java from docker-stacks/pyspark-notebook)
+ARG openjdk_version="17"
 USER root
 RUN apt-get update --yes && \
-    apt-get install --yes --no-install-recommends man-db vim gawk htop \
-    python3-setuptools graphviz python3-pydot openssh-server telnet iputils-ping && \
+    apt-get install --yes --no-install-recommends man-db vim gawk jq htop tmux \
+    python3-setuptools graphviz python3-pydot openssh-server telnet iputils-ping \
+    "openjdk-${openjdk_version}-jre-headless" ca-certificates-java && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* 
 
