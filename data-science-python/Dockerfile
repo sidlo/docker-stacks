@@ -1,23 +1,26 @@
 # Start from a core stack version
-FROM quay.io/jupyter/scipy-notebook:2024-11-25
+FROM quay.io/jupyter/scipy-notebook:2026-06-22
 # environmental variables
 ENV JUPYTER_ALLOW_INSECURE_WRITES=true
 ENV SPARK_OPTS="--driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info"
 
 # additinal ubuntu packages: (java from docker-stacks/pyspark-notebook)
-ARG openjdk_version="17"
+ARG openjdk_version="21"
 USER root
 RUN apt-get update --yes && \
-    apt-get install --yes --no-install-recommends man-db vim gawk jq htop tmux \
+    apt-get install --yes --no-install-recommends \
+    man-db vim gawk jq htop tmux mc timg net-tools postgresql-client \
     python3-setuptools graphviz python3-pydot openssh-server telnet iputils-ping \
     "openjdk-${openjdk_version}-jre-headless" ca-certificates-java && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* 
+    rm -rf /var/lib/apt/lists/*
 
 # additional python packages (with the default user of scipy-notebook):
-RUN mamba install --yes --quiet -c pytorch -c conda-forge \
+RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
+    pip install opencv-python-headless && \
+    mamba install --yes --quiet -c conda-forge \
     'asammdf[gui]' \
-    'blas' \
+    'bcrypt' \
     'bqplot' \
     'catboost' \
     'chainer' \
@@ -34,6 +37,7 @@ RUN mamba install --yes --quiet -c pytorch -c conda-forge \
     'geopy' \
     'google-cloud-bigquery' \
     'gpxpy' \
+    'gradio' \
     'graphviz' \
     'grpcio-status' \
     'grpcio' \
@@ -46,7 +50,6 @@ RUN mamba install --yes --quiet -c pytorch -c conda-forge \
     'jupyterlab-geojson' \
     'jupyterlab-lsp' \
     'jupyterlab' \
-    'keras' \
     'nltk' \
     'pandas' \
     'plotly' \
@@ -60,7 +63,6 @@ RUN mamba install --yes --quiet -c pytorch -c conda-forge \
     'pyod' \
     'pyproj' \
     'pyspark' \
-    'pytorch' \
     'rasterio' \
     'scrapy' \
     'sentinelhub' \
@@ -68,9 +70,7 @@ RUN mamba install --yes --quiet -c pytorch -c conda-forge \
     'shap' \
     'shapely' \
     'streamlit' \
-    'torchaudio' \
-    'torchvision' \
-    'tensorflow' \
+    'swifter' \
     'tslearn' \
     'twython' \
     'wfdb' \
